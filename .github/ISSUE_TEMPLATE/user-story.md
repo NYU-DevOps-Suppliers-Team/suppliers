@@ -7,15 +7,15 @@ assignees: ''
 
 ---
 
-**As a** [insert]
-**I need** [insert]
-**So that** [insert]
+**As a** insert
+**I need** insert
+**So that** insert
 
 **Assumptions:**
-* [insert]
-* [insert]
+* insert
+* insert
 
 **Acceptance Criteria:**
 ```
-[insert]
+insert
 ```
