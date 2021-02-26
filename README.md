@@ -31,7 +31,7 @@ git checkout -b branch-name
 The branch name should be related to the issue
 TBD: branch convention name
 
-2. COMMIT changes to that branch
+3. COMMIT changes to that branch
 
 ```
 git add
@@ -39,7 +39,7 @@ git commit -m "[branch-name] Description of what your commit is doing"
 ```
 TBD: commit convention.
 
-3. PUSH your changes to the Remote branch
+4. PUSH your changes to the Remote branch
 
 ```
 git checkout master // we need to make sure our branch has the latest changes
