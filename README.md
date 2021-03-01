@@ -4,6 +4,7 @@ NYU DevOps Suppliers Team
 ## Run project
 
 This repo has a Vagrantfile so the easiest way to play with it is to:
+TEST
 
 ```
 vagrant up
