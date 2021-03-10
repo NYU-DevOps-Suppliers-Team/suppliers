@@ -20,7 +20,7 @@ class DataValidationError(Exception):
 
 class Supplier(db.Model):
     """
-    Class that represents a <your resource model name>
+    Class that represents a Supplier
     """
 
     app = None
@@ -30,7 +30,7 @@ class Supplier(db.Model):
     name = db.Column(db.String(63), nullable=False)
     email = db.Column(db.String(63), nullable=False)
     address = db.Column(db.String(256), nullable=False)
-    phone_number = db.Column(db.String(63))
+    phone_number = db.Column(db.String(20))
 
     def __repr__(self):
         return "<Supplier %r id=[%s]>" % (self.name, self.id)
