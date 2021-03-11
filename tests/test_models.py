@@ -33,14 +33,53 @@ class TestSupplier(unittest.TestCase):
         db.create_all()  # make our sqlalchemy tables
 
     def tearDown(self):
-        """ This runs after each test """
+        """ This runs after each test """ 
         db.session.remove()
         db.drop_all()
 
+    def _create_supplier(self): 
+        return Supplier(
+            name="Jim Jones",
+            address="123 Main Street, Anytown USA", 
+            email="jjones@gmail.com", 
+            phone_number="800-555-1212"
+        )
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
+        
+    def test_create_a_supplier(self):
+        """ Create a Supplier and assert that it exists """
+        supplier = self._create_supplier()
+        self.assertTrue(supplier != None)
+        self.assertEqual(supplier.id, None)
+        self.assertEqual(supplier.name, "Jim Jones")
+        self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
+        self.assertEqual(supplier.email, "jjones@gmail.com")
+        self.assertEqual(supplier.phone_number, "800-555-1212")
 
-    def test_XXXX(self):
-        """ Test something """
-        self.assertTrue(True)
+    #Test supplier without optional phone number 
+        supplier = Supplier(
+            name="Jim Jones",
+            address="123 Main Street, Anytown USA", 
+            email="jjones@gmail.com"
+        )    
+        self.assertTrue(supplier != None)
+        self.assertEqual(supplier.id, None)
+        self.assertEqual(supplier.phone_number, None)
+        
+
+    def test_add_a_supplier(self):
+        """ Create a supplier and add it to the database """
+        suppliers = Supplier.all()
+        self.assertEqual(suppliers, [])
+
+        supplier = self._create_supplier()
+        self.assertTrue(supplier != None)
+        self.assertEqual(supplier.id, None)
+        supplier.create()
+
+        # Assert that it was assigned an id and shows up in the database
+        self.assertNotEqual(supplier.id, None)
+        suppliers = Supplier.all()
+        self.assertEqual(len(suppliers), 1)
