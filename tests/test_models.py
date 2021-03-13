@@ -42,7 +42,8 @@ class TestSupplier(unittest.TestCase):
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
-            phone_number="800-555-1212"
+            phone_number="800-555-1212",
+            product_list=[1,2,3,4]
         )
     ######################################################################
     #  T E S T   C A S E S
@@ -57,16 +58,19 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
+        self.assertEqual(supplier.product_list, [1,2,3,4])
 
     #Test supplier without optional phone number 
         supplier = Supplier(
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
-            email="jjones@gmail.com"
+            email="jjones@gmail.com",
+            product_list=[1,2,3,4]
         )    
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, None)
         self.assertEqual(supplier.phone_number, None)
+
         
 
     def test_add_a_supplier(self):
