@@ -31,6 +31,7 @@ class Supplier(db.Model):
     email = db.Column(db.String(63), nullable=False)
     address = db.Column(db.String(256), nullable=False)
     phone_number = db.Column(db.String(20))
+    product_list = db.Column(db.ARRAY(db.Integer), nullable=False)
 
     def __repr__(self):
         return "<Supplier %r id=[%s]>" % (self.name, self.id)
@@ -63,7 +64,8 @@ class Supplier(db.Model):
                 "name": self.name,
                 "address": self.address,
                 "email": self.email,
-                "phone_number": self.phone_number
+                "phone_number": self.phone_number,
+                "product_list": self.product_list
         }
 
     def deserialize(self, data):
@@ -77,7 +79,8 @@ class Supplier(db.Model):
             self.name = data["name"]
             self.address = data["address"]
             self.email = data["email"]
-            self.phone_number = data.get("phone_number")          
+            self.phone_number = data.get("phone_number") 
+            self.product_list = data["product_list"]         
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Supplier: missing " + error.args[0]

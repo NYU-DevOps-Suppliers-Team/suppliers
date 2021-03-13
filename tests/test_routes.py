@@ -46,7 +46,8 @@ class TestSuppplierServer(TestCase):
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
-            phone_number="800-555-1212"
+            phone_number="800-555-1212",
+            product_list=[1,2,3,4]
         )
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
@@ -78,6 +79,7 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(new_supplier["email"], test_supplier.email)
         self.assertEqual(new_supplier["address"], test_supplier.address)
         self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
+        self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
         
         # ToDo: Uncomment once Retreive Supplier is implemented 
 
@@ -89,3 +91,4 @@ class TestSuppplierServer(TestCase):
         # self.assertEqual(new_supplier["email"], test_supplier.email)
         # self.assertEqual(new_supplier["address"], test_supplier.address)
         # self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
+        # self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
