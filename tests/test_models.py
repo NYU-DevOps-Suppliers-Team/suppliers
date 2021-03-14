@@ -87,3 +87,12 @@ class TestSupplier(unittest.TestCase):
         self.assertNotEqual(supplier.id, None)
         suppliers = Supplier.all()
         self.assertEqual(len(suppliers), 1)
+
+    def test_delete_a_supplier(self):
+        """ Delete a Supplier """
+        supplier = self._create_supplier()
+        supplier.create()
+        self.assertEqual(len(Supplier.all()), 1)
+        # delete the pet and make sure it isn't in the database
+        supplier.delete()
+        self.assertEqual(len(Supplier.all()), 0)

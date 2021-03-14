@@ -127,6 +127,20 @@ def create_suppliers():
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
 
+######################################################################
+# DELETE A SUPPLIER
+######################################################################
+@app.route("/suppliers/<int:id>", methods=["DELETE"])
+def delete_suppliers(id):
+    """
+    Delete a Supplier
+    This endpoint will delete a Supplier based the id specified in the path
+    """
+    app.logger.info("Request to delete supplier with id: %s", id)
+    supplier = Supplier.find(id)
+    if supplier:
+        supplier.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

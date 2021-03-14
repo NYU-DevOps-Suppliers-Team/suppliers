@@ -43,6 +43,7 @@ class TestSuppplierServer(TestCase):
 
     def _create_supplier(self): 
         return Supplier(
+            id=1,
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
@@ -92,3 +93,17 @@ class TestSuppplierServer(TestCase):
         # self.assertEqual(new_supplier["address"], test_supplier.address)
         # self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
         # self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
+
+    def test_delete_supplier(self):
+        """ Delete a Supplier """
+        test_supplier = self._create_supplier()
+        resp = self.app.delete(
+            "/suppliers/{}".format(test_supplier.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get(
+            "/suppliers/".format(test_supplier.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
