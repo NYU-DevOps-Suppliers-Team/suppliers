@@ -43,7 +43,6 @@ class TestSuppplierServer(TestCase):
 
     def _create_supplier(self): 
         return Supplier(
-            id=1,
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
@@ -96,7 +95,8 @@ class TestSuppplierServer(TestCase):
 
     def test_delete_supplier(self):
         """ Delete a Supplier """
-        test_supplier = self._create_supplier()
+        test_supplier = self._create_supplier() 
+        test_supplier.create()
         resp = self.app.delete(
             "/suppliers/{}".format(test_supplier.id), content_type="application/json"
         )
