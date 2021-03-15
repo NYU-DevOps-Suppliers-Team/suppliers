@@ -97,7 +97,7 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(new_supplier["address"], test_supplier.address)
         self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
         self.assertEqual(new_supplier["product_list"], test_supplier.product_list)
-        
+
     def test_get_supplier_not_found(self):
         """ Get a supplier thats not found """
         resp = self.app.get("/suppliers/0")
@@ -173,4 +173,15 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
+
+
+    def test_content_type_error(self):
+        """ Create a new Supplier """
+        test_supplier = self._create_supplier()
+        logging.debug(test_supplier)
+        resp = self.app.post(
+            "/suppliers", json=test_supplier.serialize(), content_type="badcontent"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
 
