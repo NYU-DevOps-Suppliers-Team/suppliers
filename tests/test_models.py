@@ -51,14 +51,6 @@ class TestSupplier(unittest.TestCase):
         suppliers = []
         for _ in range(count):
             test_supplier = self._create_supplier()
-            resp = self.app.post(
-            "/suppliers", json=test_supplier.serialize(), content_type="application/json"
-            )
-            self.assertEqual(
-            resp.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
-            )
-            new_pet = resp.get_json()
-            test_supplier.id = new_pet["id"]
             suppliers.append(test_supplier)
         return suppliers
 
@@ -114,17 +106,17 @@ class TestSupplier(unittest.TestCase):
         supplier.delete()
         self.assertEqual(len(Supplier.all()), 0)
 
-    # def test_find_supplier(self):
-    #     """ Find a Supplier by ID """    
-    #     suppliers = self._create_suppliers(5)       
-    #     for supplier in suppliers:
-    #         supplier.create() 
-    #     logging.debug(suppliers)
-    #     # make sure they got saved
-    #     self.assertEqual(len(Supplier.all()), 5)
-    #     # find the 2nd supplier in the list
-    #     supplier = Supplier.find(supplier[1].id)
-    #     self.assertIsNot(supplier, None)
-    #     self.assertEqual(supplier.id, supplier[1].id)
-    #     self.assertEqual(supplier.name, supplier[1].name)
+    def test_find_supplier(self):
+        """ Find a Supplier by ID """    
+        suppliers = self._create_suppliers(5)       
+        for supplier in suppliers:
+            supplier.create() 
+        logging.debug(suppliers)
+        # make sure they got saved
+        self.assertEqual(len(Supplier.all()), 5)
+        # find the 2nd supplier in the list
+        supplier = Supplier.find(suppliers[1].id)
+        self.assertIsNot(supplier, None)
+        self.assertEqual(supplier.id, suppliers[1].id)
+        self.assertEqual(supplier.name, suppliers[1].name)
 
