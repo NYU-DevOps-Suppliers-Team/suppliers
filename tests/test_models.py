@@ -162,6 +162,22 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.phone_number, "800-555-1212")
         self.assertEqual(supplier.product_list, [1,2,3,4])
 
+    def test_deserialize_missing_data(self):
+        """ Test deserialization of a supplier """
+        data = {
+            "id": 1,
+            "name": "Jim Jones",
+            "address": "123 Main Street, Anytown USA", 
+        }
+        supplier = Supplier()
+        self.assertRaises(DataValidationError, supplier.deserialize, data)
+
+    def test_deserialize_bad_data(self):
+        """ Test deserialization of bad data """
+        data = "this is not a dictionary"
+        supplier = Supplier()
+        self.assertRaises(DataValidationError, supplier.deserialize, data)
+
     def test_find_supplier(self):
         """ Find a Supplier by ID """    
         suppliers = self._create_suppliers(5)       
