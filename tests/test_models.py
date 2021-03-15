@@ -97,6 +97,26 @@ class TestSupplier(unittest.TestCase):
         suppliers = Supplier.all()
         self.assertEqual(len(suppliers), 1)
 
+    def test_update_a_supplier(self):
+        """ Update a Supplier """
+        supplier = self._create_supplier()
+        logging.debug(supplier)
+        supplier.create()
+        logging.debug(supplier)
+        self.assertEqual(supplier.id, 1)
+        # Change it an save it
+        supplier.name = "Updated Name"
+        original_id = supplier.id
+        supplier.save()
+        self.assertEqual(supplier.id, original_id)
+        self.assertEqual(supplier.name, "Updated Name")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        suppliers = Supplier.all()
+        self.assertEqual(len(suppliers), 1)
+        self.assertEqual(suppliers[0].id, 1)
+        self.assertEqual(suppliers[0].name, "Updated Name")
+
     def test_delete_a_supplier(self):
         """ Delete a Supplier """
         supplier = self._create_supplier()
