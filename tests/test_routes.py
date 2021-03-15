@@ -49,6 +49,23 @@ class TestSuppplierServer(TestCase):
             phone_number="800-555-1212",
             product_list=[1,2,3,4]
         )
+
+    def _create_suppliers(self, count):
+        """ Factory method to create suppliers in bulk """
+        suppliers = []
+        for _ in range(count):
+            test_supplier = self._create_supplier()
+            resp = self.app.post(
+                "/suppliers", json=test_supplier.serialize(), content_type="application/json"
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
+            )
+            new_pet = resp.get_json()
+            test_supplier.id = new_pet["id"]
+            suppliers.append(test_supplier)
+        return suppliers
+
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -107,3 +124,12 @@ class TestSuppplierServer(TestCase):
             "/suppliers/".format(test_supplier.id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
+    def test_get_pet_list(self):
+        """ Get a list of Suppliers """
+        self._create_suppliers(5)
+        resp = self.app.get("/suppliers")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)

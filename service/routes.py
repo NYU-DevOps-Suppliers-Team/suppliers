@@ -128,6 +128,23 @@ def create_suppliers():
     )
 
 ######################################################################
+# LIST ALL SUPPLIERS
+######################################################################
+@app.route("/suppliers", methods=["GET"])
+def list_suppliers():
+    """ Returns all of the Suppliers """
+    app.logger.info("Request for supplier list")
+    suppliers = []
+    name = request.args.get("name")
+    if name:
+        suppliers = Supplier.find_by_name(name)
+    else:
+        suppliers = Supplier.all()
+
+    results = [supplier.serialize() for supplier in suppliers]
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
 # DELETE A SUPPLIER
 ######################################################################
 @app.route("/suppliers/<int:id>", methods=["DELETE"])
