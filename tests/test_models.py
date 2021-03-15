@@ -78,9 +78,7 @@ class TestSupplier(unittest.TestCase):
         )    
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, None)
-        self.assertEqual(supplier.phone_number, None)
-
-        
+        self.assertEqual(supplier.phone_number, None)  
 
     def test_add_a_supplier(self):
         """ Create a supplier and add it to the database """
@@ -125,6 +123,44 @@ class TestSupplier(unittest.TestCase):
         # delete the pet and make sure it isn't in the database
         supplier.delete()
         self.assertEqual(len(Supplier.all()), 0)
+
+    def test_serialize_a_supplier(self):
+        """ Test serialization of a Supplier """
+        supplier = self._create_supplier()
+        data = supplier.serialize()
+        self.assertNotEqual(data, None)
+        self.assertIn("id", data)
+        self.assertEqual(data["id"], supplier.id)
+        self.assertIn("name", data)
+        self.assertEqual(data["name"], supplier.name)
+        self.assertIn("address", data)
+        self.assertEqual(data["address"], supplier.address)
+        self.assertIn("email", data)
+        self.assertEqual(data["email"], supplier.email)
+        self.assertIn("phone_number", data)
+        self.assertEqual(data["phone_number"], supplier.phone_number)
+        self.assertIn("product_list", data)
+        self.assertEqual(data["product_list"], supplier.product_list)
+
+    def test_deserialize_a_supplier(self):
+        """ Test deserialization of a Supplier """
+        data = {
+            "id": 1,
+            "name": "Jim Jones",
+            "address": "123 Main Street, Anytown USA", 
+            "email": "jjones@gmail.com",
+            "phone_number": "800-555-1212",
+            "product_list": [1,2,3,4]
+        }
+        supplier = Supplier()
+        supplier.deserialize(data)
+        self.assertNotEqual(supplier, None)
+        self.assertEqual(supplier.id, None)
+        self.assertEqual(supplier.name, "Jim Jones")
+        self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
+        self.assertEqual(supplier.email, "jjones@gmail.com")
+        self.assertEqual(supplier.phone_number, "800-555-1212")
+        self.assertEqual(supplier.product_list, [1,2,3,4])
 
     def test_find_supplier(self):
         """ Find a Supplier by ID """    
