@@ -45,6 +45,23 @@ class TestSupplier(unittest.TestCase):
             phone_number="800-555-1212",
             product_list=[1,2,3,4]
         )
+
+    def _create_suppliers(self, count):
+        """ Factory method to create suppliers in bulk """
+        suppliers = []
+        for _ in range(count):
+            test_supplier = self._create_supplier()
+            resp = self.app.post(
+            "/suppliers", json=test_supplier.serialize(), content_type="application/json"
+            )
+            self.assertEqual(
+            resp.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
+            )
+            new_pet = resp.get_json()
+            test_supplier.id = new_pet["id"]
+            suppliers.append(test_supplier)
+        return suppliers
+
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
@@ -96,3 +113,18 @@ class TestSupplier(unittest.TestCase):
         # delete the pet and make sure it isn't in the database
         supplier.delete()
         self.assertEqual(len(Supplier.all()), 0)
+
+    # def test_find_supplier(self):
+    #     """ Find a Supplier by ID """    
+    #     suppliers = self._create_suppliers(5)       
+    #     for supplier in suppliers:
+    #         supplier.create() 
+    #     logging.debug(suppliers)
+    #     # make sure they got saved
+    #     self.assertEqual(len(Supplier.all()), 5)
+    #     # find the 2nd supplier in the list
+    #     supplier = Supplier.find(supplier[1].id)
+    #     self.assertIsNot(supplier, None)
+    #     self.assertEqual(supplier.id, supplier[1].id)
+    #     self.assertEqual(supplier.name, supplier[1].name)
+
