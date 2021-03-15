@@ -9,6 +9,7 @@ import sys
 import logging
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from flask_api import status  # HTTP Status Codes
+from werkzeug.exceptions import NotFound
 
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
@@ -126,6 +127,26 @@ def create_suppliers():
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+
+
+######################################################################
+# UPDATE AN EXISTING SUPPLIER
+######################################################################
+@app.route("/suppliers/<int:supplier_id>", methods=["PUT"])
+def update_suppliers(supplier_id):
+    """
+    Update a Supplier
+    This endpoint will update a Supplier based the body that is posted
+    """
+    app.logger.info("Request to update Supplier with id: %s", supplier_id)
+    check_content_type("application/json")
+    supplier = Supplier.find(supplier_id)
+    if not supplier:
+        raise NotFound("Supplier with id '{}' was not found.".format(supplier_id))
+    supplier.deserialize(request.get_json())
+    supplier.id = supplier_id
+    supplier.save()
+    return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
 
 
 ######################################################################

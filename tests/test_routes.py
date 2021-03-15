@@ -92,3 +92,50 @@ class TestSuppplierServer(TestCase):
         # self.assertEqual(new_supplier["address"], test_supplier.address)
         # self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
         # self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
+
+    # def test_update_supplier(self):
+    #     """ Update an existing Supplier """
+    #     # create a supplier to update
+    #     supplier = self._create_supplier()
+    #     # supplier.create()
+    #     resp = self.app.post(
+    #         "/suppliers", json=supplier.serialize(), content_type="application/json"
+    #     )
+    #     self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+    #     # update the supplier
+    #     new_supplier = resp.get_json()
+    #     logging.debug(new_supplier)
+    #     new_supplier["name"] = "Jessica Jones"
+    #     print(supplier)
+    #     print(new_supplier)
+    #     resp = self.app.put(
+    #         "/suppliers/{}".format(supplier["id"]),
+    #         json=new_supplier,
+    #         content_type="application/json",
+    #     )
+    #     self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    #     updated_supplier = resp.get_json()
+    #     self.assertEqual(updated_supplier["name"], "Jessica Jones")
+
+    def test_update_supplier(self):
+            """ Update an existing supplier """
+            # create a supplier to update
+            test_supplier = self._create_supplier() 
+            resp = self.app.post(
+                "/suppliers", json=test_supplier.serialize(), content_type="application/json"
+            )
+            self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+            # update the supplier
+            new_supplier = resp.get_json()
+            logging.debug(new_supplier)
+            new_supplier["name"] = "Updated Name"
+            resp = self.app.put(
+                "/suppliers/{}".format(new_supplier["id"]),
+                json=new_supplier,
+                content_type="application/json",
+            )
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            updated_supplier = resp.get_json()
+            self.assertEqual(updated_supplier["name"], "Updated Name")
