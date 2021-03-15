@@ -4,6 +4,7 @@ Test cases for Supplier Model
 """
 import logging
 import unittest
+from werkzeug.exceptions import NotFound
 import os
 from service.models import Supplier, DataValidationError, db
 from service import app
@@ -236,3 +237,8 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, suppliers[1].address)
         self.assertEqual(supplier.phone_number, suppliers[1].phone_number)
         self.assertEqual(supplier.product_list, suppliers[1].product_list)
+
+
+    def test_find_or_404_not_found(self):
+        """ Find or return 404 NOT found """
+        self.assertRaises(NotFound, Supplier.find_or_404, 0)
