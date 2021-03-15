@@ -128,6 +128,53 @@ def create_suppliers():
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
 
+######################################################################
+# LIST ALL SUPPLIERS
+######################################################################
+@app.route("/suppliers", methods=["GET"])
+def list_suppliers():
+    """ Returns all of the Suppliers """
+    app.logger.info("Request for supplier list")
+    suppliers = []
+    name = request.args.get("name")
+    if name:
+        suppliers = Supplier.find_by_name(name)
+    else:
+        suppliers = Supplier.all()
+
+    results = [supplier.serialize() for supplier in suppliers]
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
+# DELETE A SUPPLIER
+######################################################################
+@app.route("/suppliers/<int:id>", methods=["DELETE"])
+def delete_suppliers(id):
+    """
+    Delete a Supplier
+    This endpoint will delete a Supplier based the id specified in the path
+    """
+    app.logger.info("Request to delete supplier with id: %s", id)
+    supplier = Supplier.find(id)
+    if supplier:
+        supplier.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
+    
+#####################################################################    
+# READ A SUPPLIER
+######################################################################
+@app.route("/suppliers/<int:supplier_id>", methods=["GET"])
+def get_supplier(supplier_id):
+    """
+    Read a single Supplier
+    This endpoint will return a Supplier based on it's id
+    """
+    app.logger.info("Request for supplier with id: %s", supplier_id)
+    supplier = Supplier.find(supplier_id)
+    if not supplier:
+        raise NotFound("Supplier with id '{}' was not found.".format(supplier_id))
+    return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 # UPDATE AN EXISTING SUPPLIER

@@ -49,6 +49,23 @@ class TestSuppplierServer(TestCase):
             phone_number="800-555-1212",
             product_list=[1,2,3,4]
         )
+
+    def _create_suppliers(self, count):
+        """ Factory method to create suppliers in bulk """
+        suppliers = []
+        for _ in range(count):
+            test_supplier = self._create_supplier()
+            resp = self.app.post(
+                "/suppliers", json=test_supplier.serialize(), content_type="application/json"
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
+            )
+            new_pet = resp.get_json()
+            test_supplier.id = new_pet["id"]
+            suppliers.append(test_supplier)
+        return suppliers
+
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -79,7 +96,22 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(new_supplier["email"], test_supplier.email)
         self.assertEqual(new_supplier["address"], test_supplier.address)
         self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
-        self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
+        self.assertEqual(new_supplier["product_list"], test_supplier.product_list)
+
+    def test_get_supplier(self):
+        """ Get a single Supplier """
+        # get the id of a supplier
+        test_suppliers = self._create_suppliers(5)
+        test_supplier = test_suppliers[0]
+        test_supplier.create()
+        resp = self.app.get(
+            "/suppliers/{}".format(test_supplier.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["name"], test_supplier.name)
+  
+     
         
         # ToDo: Uncomment once Retreive Supplier is implemented 
 
@@ -93,32 +125,7 @@ class TestSuppplierServer(TestCase):
         # self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
         # self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
 
-    # def test_update_supplier(self):
-    #     """ Update an existing Supplier """
-    #     # create a supplier to update
-    #     supplier = self._create_supplier()
-    #     # supplier.create()
-    #     resp = self.app.post(
-    #         "/suppliers", json=supplier.serialize(), content_type="application/json"
-    #     )
-    #     self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-
-    #     # update the supplier
-    #     new_supplier = resp.get_json()
-    #     logging.debug(new_supplier)
-    #     new_supplier["name"] = "Jessica Jones"
-    #     print(supplier)
-    #     print(new_supplier)
-    #     resp = self.app.put(
-    #         "/suppliers/{}".format(supplier["id"]),
-    #         json=new_supplier,
-    #         content_type="application/json",
-    #     )
-    #     self.assertEqual(resp.status_code, status.HTTP_200_OK)
-    #     updated_supplier = resp.get_json()
-    #     self.assertEqual(updated_supplier["name"], "Jessica Jones")
-
-    def test_update_supplier(self):
+        def test_update_supplier(self):
             """ Update an existing supplier """
             # create a supplier to update
             test_supplier = self._create_supplier() 
@@ -139,3 +146,26 @@ class TestSuppplierServer(TestCase):
             self.assertEqual(resp.status_code, status.HTTP_200_OK)
             updated_supplier = resp.get_json()
             self.assertEqual(updated_supplier["name"], "Updated Name")
+    def test_delete_supplier(self):
+        """ Delete a Supplier """
+        test_supplier = self._create_supplier() 
+        test_supplier.create()
+        resp = self.app.delete(
+            "/suppliers/{}".format(test_supplier.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get(
+            "/suppliers/".format(test_supplier.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
+    def test_get_supplier_list(self):
+        """ Get a list of Suppliers """
+        self._create_suppliers(5)
+        resp = self.app.get("/suppliers")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)

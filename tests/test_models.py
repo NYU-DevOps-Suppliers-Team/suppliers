@@ -45,6 +45,15 @@ class TestSupplier(unittest.TestCase):
             phone_number="800-555-1212",
             product_list=[1,2,3,4]
         )
+
+    def _create_suppliers(self, count):
+        """ Factory method to create suppliers in bulk """
+        suppliers = []
+        for _ in range(count):
+            test_supplier = self._create_supplier()
+            suppliers.append(test_supplier)
+        return suppliers
+
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
@@ -89,21 +98,45 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(len(suppliers), 1)
 
     def test_update_a_supplier(self):
-            """ Update a Supplier """
-            supplier = self._create_supplier()
-            logging.debug(supplier)
-            supplier.create()
-            logging.debug(supplier)
-            self.assertEqual(self.id, 1)
-            # Change it an save it
-            supplier.name = "Updated Name"
-            original_id = supplier.id
-            supplier.save()
-            self.assertEqual(supplier.id, original_id)
-            self.assertEqual(supplier.name, "Updated Name")
-            # Fetch it back and make sure the id hasn't changed
-            # but the data did change
-            suppliers = Supplier.all()
-            self.assertEqual(len(suppliers), 1)
-            self.assertEqual(suppliers[0].id, 1)
-            self.assertEqual(suppliers[0].name, "Updated Name")
+        """ Update a Supplier """
+        supplier = self._create_supplier()
+        logging.debug(supplier)
+        supplier.create()
+        logging.debug(supplier)
+        self.assertEqual(supplier.id, 1)
+        # Change it an save it
+        supplier.name = "Updated Name"
+        original_id = supplier.id
+        supplier.save()
+        self.assertEqual(supplier.id, original_id)
+        self.assertEqual(supplier.name, "Updated Name")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        suppliers = Supplier.all()
+        self.assertEqual(len(suppliers), 1)
+        self.assertEqual(suppliers[0].id, 1)
+        self.assertEqual(suppliers[0].name, "Updated Name")
+
+    def test_delete_a_supplier(self):
+        """ Delete a Supplier """
+        supplier = self._create_supplier()
+        supplier.create()
+        self.assertEqual(len(Supplier.all()), 1)
+        # delete the pet and make sure it isn't in the database
+        supplier.delete()
+        self.assertEqual(len(Supplier.all()), 0)
+
+    def test_find_supplier(self):
+        """ Find a Supplier by ID """    
+        suppliers = self._create_suppliers(5)       
+        for supplier in suppliers:
+            supplier.create() 
+        logging.debug(suppliers)
+        # make sure they got saved
+        self.assertEqual(len(Supplier.all()), 5)
+        # find the 2nd supplier in the list
+        supplier = Supplier.find(suppliers[1].id)
+        self.assertIsNot(supplier, None)
+        self.assertEqual(supplier.id, suppliers[1].id)
+        self.assertEqual(supplier.name, suppliers[1].name)
+
