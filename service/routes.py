@@ -158,6 +158,22 @@ def delete_suppliers(id):
     if supplier:
         supplier.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
+    
+#####################################################################    
+# READ A SUPPLIER
+######################################################################
+@app.route("/suppliers/<int:supplier_id>", methods=["GET"])
+def get_supplier(supplier_id):
+    """
+    Read a single Supplier
+    This endpoint will return a Supplier based on it's id
+    """
+    app.logger.info("Request for supplier with id: %s", supplier_id)
+    supplier = Supplier.find(supplier_id)
+    if not supplier:
+        raise NotFound("Supplier with id '{}' was not found.".format(supplier_id))
+    return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

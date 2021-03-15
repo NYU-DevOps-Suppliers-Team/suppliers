@@ -96,7 +96,22 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(new_supplier["email"], test_supplier.email)
         self.assertEqual(new_supplier["address"], test_supplier.address)
         self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
-        self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
+        self.assertEqual(new_supplier["product_list"], test_supplier.product_list)
+
+    def test_get_supplier(self):
+        """ Get a single Supplier """
+        # get the id of a supplier
+        test_suppliers = self._create_suppliers(5)
+        test_supplier = test_suppliers[0]
+        test_supplier.create()
+        resp = self.app.get(
+            "/suppliers/{}".format(test_supplier.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["name"], test_supplier.name)
+  
+     
         
         # ToDo: Uncomment once Retreive Supplier is implemented 
 
@@ -126,7 +141,7 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
 
-    def test_get_pet_list(self):
+    def test_get_supplier_list(self):
         """ Get a list of Suppliers """
         self._create_suppliers(5)
         resp = self.app.get("/suppliers")
