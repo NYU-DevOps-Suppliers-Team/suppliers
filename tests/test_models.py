@@ -176,3 +176,47 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.id, suppliers[1].id)
         self.assertEqual(supplier.name, suppliers[1].name)
 
+    def test_find_by_name(self):
+        """ Find a supplier by Name """
+        Supplier(
+            name="Supplier 1",
+            email="supplier1@email.com",
+            address="Suplier address 1",
+            phone_number="312 478 9890",
+            product_list=[1, 2, 3, 4]
+        ).create()
+
+        Supplier(
+            name="Supplier 2",
+            email="supplier2@email.com",
+            address="Suplier address 2",
+            product_list=[1, 2, 3, 4, 5]
+        ).create()
+        
+        suppliers = Supplier.find_by_name("Supplier 1")
+        self.assertEqual(suppliers[0].email, "supplier1@email.com")
+        self.assertEqual(suppliers[0].address, "Suplier address 1")
+        self.assertEqual(suppliers[0].phone_number, "312 478 9890")
+        self.assertEqual(suppliers[0].product_list, [1, 2, 3, 4])
+
+        suppliers = Supplier.find_by_name("Supplier 2")
+        self.assertEqual(suppliers[0].email, "supplier2@email.com")
+        self.assertEqual(suppliers[0].address, "Suplier address 2")
+        self.assertEqual(suppliers[0].phone_number, None)
+        self.assertEqual(suppliers[0].product_list, [1, 2, 3, 4, 5])
+
+
+    def test_find_or_404_found(self):
+        """ Find or return 404 found """
+        suppliers = self._create_suppliers(3)
+        for supplier in suppliers:
+            supplier.create()
+
+        supplier = Supplier.find_or_404(suppliers[1].id)
+        self.assertIsNot(supplier, None)
+        self.assertEqual(supplier.id, suppliers[1].id)
+        self.assertEqual(supplier.name, suppliers[1].name)
+        self.assertEqual(supplier.email, suppliers[1].email)
+        self.assertEqual(supplier.address, suppliers[1].address)
+        self.assertEqual(supplier.phone_number, suppliers[1].phone_number)
+        self.assertEqual(supplier.product_list, suppliers[1].product_list)
