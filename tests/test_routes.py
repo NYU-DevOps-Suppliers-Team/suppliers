@@ -98,6 +98,11 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
         self.assertEqual(new_supplier["product_list"], test_supplier.product_list)
 
+    def test_get_supplier_not_found(self):
+        """ Get a supplier thats not found """
+        resp = self.app.get("/suppliers/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_get_supplier(self):
         """ Get a single Supplier """
         # get the id of a supplier
@@ -110,9 +115,7 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], test_supplier.name)
-  
      
-        
         # ToDo: Uncomment once Retreive Supplier is implemented 
 
         # # Check that the location header was correct
@@ -125,27 +128,28 @@ class TestSuppplierServer(TestCase):
         # self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
         # self.assertEqual(new_supplier["product_list"], test_supplier.product_list) 
 
-        def test_update_supplier(self):
-            """ Update an existing supplier """
-            # create a supplier to update
-            test_supplier = self._create_supplier() 
-            resp = self.app.post(
-                "/suppliers", json=test_supplier.serialize(), content_type="application/json"
-            )
-            self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+    def test_update_supplier(self):
+        """ Update an existing supplier """
+        # create a supplier to update
+        test_supplier = self._create_supplier() 
+        resp = self.app.post(
+            "/suppliers", json=test_supplier.serialize(), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-            # update the supplier
-            new_supplier = resp.get_json()
-            logging.debug(new_supplier)
-            new_supplier["name"] = "Updated Name"
-            resp = self.app.put(
-                "/suppliers/{}".format(new_supplier["id"]),
-                json=new_supplier,
-                content_type="application/json",
-            )
-            self.assertEqual(resp.status_code, status.HTTP_200_OK)
-            updated_supplier = resp.get_json()
-            self.assertEqual(updated_supplier["name"], "Updated Name")
+        # update the supplier
+        new_supplier = resp.get_json()
+        logging.debug(new_supplier)
+        new_supplier["name"] = "Updated Name"
+        resp = self.app.put(
+            "/suppliers/{}".format(new_supplier["id"]),
+            json=new_supplier,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_supplier = resp.get_json()
+        self.assertEqual(updated_supplier["name"], "Updated Name")
+            
     def test_delete_supplier(self):
         """ Delete a Supplier """
         test_supplier = self._create_supplier() 
@@ -169,3 +173,15 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
+
+
+    def test_content_type_error(self):
+        """ Create a new Supplier """
+        test_supplier = self._create_supplier()
+        logging.debug(test_supplier)
+        resp = self.app.post(
+            "/suppliers", json=test_supplier.serialize(), content_type="badcontent"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+
