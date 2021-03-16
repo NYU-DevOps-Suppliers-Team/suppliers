@@ -70,8 +70,7 @@ git merge main    // once we pull in master we merge those changes to out branch
 git push -u origin branch-name
 ```
 
-5. Issue a PULL REQUEST to have your work reviewed
-aasociate your pull request to your issue
+5. Issue a PULL REQUEST to have your work reviewed and associate your pull request to your issue
 
 7. MERGE your code to main and close the ISSUE
 
