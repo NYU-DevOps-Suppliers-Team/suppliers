@@ -1,7 +1,22 @@
-# suppliers
-NYU DevOps Suppliers Team
+# NYU DevOps - Suppliers
 
-## Run project
+### Resource Description
+The suppliers resource associates products with the vendor that supplies them to our business. It contains information about the supplier, and a collection of references to the products that they provide.
+
+## API Documentation
+### Model
+
+|  Column  |  Type  |
+| :----------: | :---------: |
+| id | Integer |
+| name | String |
+| email | String |
+| address | String |
+| phone_number | String (Optional) |
+| product_list | List of Product IDs (Integers) | 
+
+## Dev Resources
+### Run project
 
 This repo has a Vagrantfile so the easiest way to play with it is to:
 
@@ -33,7 +48,7 @@ To shut down vagrant
  vagrant halt
 ```
 
-## Working with branches
+### Working with branches
 
 1. Make sure you have the latest changes form master
 
