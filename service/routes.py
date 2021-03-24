@@ -126,8 +126,7 @@ def create_suppliers():
     supplier.deserialize(request.get_json())
     supplier.create()
     message = supplier.serialize()
-    #location_url = url_for("get_supplier", supplier_id=supplier.id, _external=True)
-    location_url = "not implemented"
+    location_url = url_for("get_supplier", supplier_id=supplier.id, _external=True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
