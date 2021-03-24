@@ -47,7 +47,7 @@ class TestSuppplierServer(TestCase):
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
             phone_number="800-555-1212",
-            productlist=[]
+            products=[]
         )
 
     def _create_suppliers(self, count):
@@ -96,7 +96,7 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(new_supplier["email"], test_supplier.email)
         self.assertEqual(new_supplier["address"], test_supplier.address)
         self.assertEqual(new_supplier["phone_number"], test_supplier.phone_number)
-        self.assertEqual(new_supplier["productlist"], test_supplier.productlist)
+        self.assertEqual(new_supplier["products"], test_supplier.products)
 
     def test_get_supplier_not_found(self):
         """ Get a supplier thats not found """

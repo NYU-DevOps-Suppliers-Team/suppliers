@@ -18,77 +18,15 @@ class DataValidationError(Exception):
     pass
 
 ######################################################################
-#  P R O D U C T  L I S T   M O D E L
+#  A S S O C I A T I O N  T A B L E
 ######################################################################
-class ProductList(db.Model):
-    """
-    Class that represents an ProductListing
-    """
-
-    # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
-    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False)
-    product_id = db.Column(db.Integer)
-    name = db.Column(db.String(64))
+class Association(db.Model):
+    __tablename__ = 'association'
+    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     wholesale_price = db.Column(db.Integer)
-
-    def __repr__(self):
-        return "<ProductListing %r id=[%s]>" % (self.product_id, self.id, self.supplier_id)
-
-    def create(self):
-        """
-        Creates a ProductListing to the database
-        """
-        logger.info("Creating %s", self.id)
-        self.id = None  # id must be none to generate next primary key
-        db.session.add(self)
-        db.session.commit()
-
-    def save(self):
-        """
-        Updates a ProductListing to the database
-        """
-        logger.info("Saving %s", self.id)
-        db.session.commit()
-
-    def delete(self):
-        """ Removes a ProductListing from the data store """
-        logger.info("Deleting %s", self.id)
-        db.session.delete(self)
-        db.session.commit()
-
-    def serialize(self):
-        """ Serializes a ProductListing into a dictionary """
-        return {"id": self.id,
-                "supplier_id": self.supplier_id,
-                "product_id": self.product_id,
-                "name": self.name,
-                "wholesale_price": self.wholesale_price
-        }
-
-    def deserialize(self, data):
-        """
-        Deserializes a ProductListing from a dictionary
-
-        Args:
-            data (dict): A dictionary containing the resource data
-        """
-        try:
-            self.supplier_id = data["supplier_id"]
-            self.product_id = data["product_id"]
-            self.name = data["name"]
-            self.wholesale_price = data.get("wholesale_price") 
-        except KeyError as error:
-            raise DataValidationError(
-                "Invalid ProductListing: missing " + error.args[0]
-            )
-        except TypeError as error:
-            raise DataValidationError(
-                "Invalid ProductListing: body of request contained bad or no data"
-            )
-        return self 
-
-
+    product = db.relationship("Product")  
+    
 ######################################################################
 #  S U P P L I E R   M O D E L
 ######################################################################
@@ -99,6 +37,8 @@ class Supplier(db.Model):
     """
 
     app = None
+   
+    __tablename__ = 'supplier'
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
@@ -106,7 +46,7 @@ class Supplier(db.Model):
     email = db.Column(db.String(63), nullable=False)
     address = db.Column(db.String(256), nullable=False)
     phone_number = db.Column(db.String(20))
-    productlist = db.relationship('ProductList', backref='supplier', lazy=True)
+    products = db.relationship("Association")
 
     def __repr__(self):
         return "<Supplier %r id=[%s]>" % (self.name, self.id)
@@ -140,10 +80,10 @@ class Supplier(db.Model):
                 "address": self.address,
                 "email": self.email,
                 "phone_number": self.phone_number,
-                "productlist": []
+                "products": []
         }
-        for productlisting in self.productlist:
-            supplier['productlist'].append(productlisting.serialize())
+        for product in self.products:
+            supplier['products'].append(product.serialize())
         return supplier
 
     def deserialize(self, data):
@@ -159,11 +99,11 @@ class Supplier(db.Model):
             self.email = data["email"]
             self.phone_number = data.get("phone_number") 
             # handle inner list of product listings
-            products = data.get("productlist")
+            products = data.get("products")
             for json_products in products:
-                productlisting = ProductList()
-                productlisting.deserialize(json_products)
-                self.productlist.append(productlisting)
+                product = Product()
+                product.deserialize(json_products)
+                self.products.append(product)
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Supplier: missing " + error.args[0]
@@ -211,3 +151,74 @@ class Supplier(db.Model):
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
+
+######################################################################
+#  P R O D U C T S  M O D E L
+######################################################################
+class Product(db.Model):
+    """
+    Class that represents an Product
+    """
+   
+    __tablename__ = 'product'
+
+    # Table Schema
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+
+    def __repr__(self):
+        return "<Product %r id=[%s]>" % (self.name, self.id)
+
+    def create(self):
+        """
+        Creates a Product to the database
+        """
+        logger.info("Creating %s", self.id)
+        self.id = None  # id must be none to generate next primary key
+        db.session.add(self)
+        db.session.commit()
+
+    def save(self):
+        """
+        Updates a Product to the database
+        """
+        logger.info("Saving %s", self.id)
+        db.session.commit()
+
+    def delete(self):
+        """ Removes a Product from the data store """
+        logger.info("Deleting %s", self.id)
+        db.session.delete(self)
+        db.session.commit()
+
+    def serialize(self):
+        """ Serializes a Product into a dictionary """
+        return {
+            "id": self.id,
+            "name": self.name
+            }
+
+    def deserialize(self, data):
+        """
+        Deserializes a Product from a dictionary
+
+        Args:
+            data (dict): A dictionary containing the resource data
+        """
+        try:
+            self.name = data["name"]
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid Product: missing " + error.args[0]
+            )
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Product: body of request contained bad or no data"
+            )
+        return self 
+
+    @classmethod
+    def all(cls):
+        """ Returns all of the Products in the database """
+        logger.info("Processing all Products")
+        return cls.query.all()
