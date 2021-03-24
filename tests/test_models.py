@@ -6,7 +6,7 @@ import logging
 import unittest
 from werkzeug.exceptions import NotFound
 import os
-from service.models import Supplier, DataValidationError, db
+from service.models import Supplier, ProductList, DataValidationError, db
 from service import app
 
 DATABASE_URI = os.getenv(
@@ -44,7 +44,7 @@ class TestSupplier(unittest.TestCase):
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
             phone_number="800-555-1212",
-            product_list=[1,2,3,4]
+            productlist= []
         )
 
     def _create_suppliers(self, count):
@@ -54,6 +54,14 @@ class TestSupplier(unittest.TestCase):
             test_supplier = self._create_supplier()
             suppliers.append(test_supplier)
         return suppliers
+    
+    def _create_productlisting(self): 
+        return ProductList(
+            supplier_id=1,
+            product_id=1, 
+            name="Macbook", 
+            wholesale_price=999
+        )
 
     ######################################################################
     #  T E S T   C A S E S
@@ -68,14 +76,14 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
-        self.assertEqual(supplier.product_list, [1,2,3,4])
+        self.assertEqual(supplier.productlist, [])
+
 
     #Test supplier without optional phone number 
         supplier = Supplier(
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
-            email="jjones@gmail.com",
-            product_list=[1,2,3,4]
+            email="jjones@gmail.com"
         )    
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, None)
@@ -140,8 +148,6 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(data["email"], supplier.email)
         self.assertIn("phone_number", data)
         self.assertEqual(data["phone_number"], supplier.phone_number)
-        self.assertIn("product_list", data)
-        self.assertEqual(data["product_list"], supplier.product_list)
 
     def test_deserialize_a_supplier(self):
         """ Test deserialization of a Supplier """
@@ -151,7 +157,7 @@ class TestSupplier(unittest.TestCase):
             "address": "123 Main Street, Anytown USA", 
             "email": "jjones@gmail.com",
             "phone_number": "800-555-1212",
-            "product_list": [1,2,3,4]
+            "productlist": []
         }
         supplier = Supplier()
         supplier.deserialize(data)
@@ -161,7 +167,6 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
-        self.assertEqual(supplier.product_list, [1,2,3,4])
 
     def test_deserialize_missing_data(self):
         """ Test deserialization of a supplier """
@@ -199,29 +204,24 @@ class TestSupplier(unittest.TestCase):
             name="Supplier 1",
             email="supplier1@email.com",
             address="Suplier address 1",
-            phone_number="312 478 9890",
-            product_list=[1, 2, 3, 4]
+            phone_number="312 478 9890"
         ).create()
 
         Supplier(
             name="Supplier 2",
             email="supplier2@email.com",
-            address="Suplier address 2",
-            product_list=[1, 2, 3, 4, 5]
+            address="Suplier address 2"
         ).create()
         
         suppliers = Supplier.find_by_name("Supplier 1")
         self.assertEqual(suppliers[0].email, "supplier1@email.com")
         self.assertEqual(suppliers[0].address, "Suplier address 1")
         self.assertEqual(suppliers[0].phone_number, "312 478 9890")
-        self.assertEqual(suppliers[0].product_list, [1, 2, 3, 4])
 
         suppliers = Supplier.find_by_name("Supplier 2")
         self.assertEqual(suppliers[0].email, "supplier2@email.com")
         self.assertEqual(suppliers[0].address, "Suplier address 2")
         self.assertEqual(suppliers[0].phone_number, None)
-        self.assertEqual(suppliers[0].product_list, [1, 2, 3, 4, 5])
-
 
     def test_find_or_404_found(self):
         """ Find or return 404 found """
@@ -236,9 +236,54 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.email, suppliers[1].email)
         self.assertEqual(supplier.address, suppliers[1].address)
         self.assertEqual(supplier.phone_number, suppliers[1].phone_number)
-        self.assertEqual(supplier.product_list, suppliers[1].product_list)
-
 
     def test_find_or_404_not_found(self):
         """ Find or return 404 NOT found """
         self.assertRaises(NotFound, Supplier.find_or_404, 0)
+
+    def test_deserialize_productlisting_key_error(self):
+        """ Deserialize a product listing with a KeyError """
+        productlist = ProductList()
+        self.assertRaises(DataValidationError, productlist.deserialize, {})
+
+    def test_deserialize_productlisting_type_error(self):
+        """ Deserialize a product listing with a TypeError """
+        productlist = ProductList()
+        self.assertRaises(DataValidationError, productlist.deserialize, [])
+
+    def test_add_productlisting(self):
+        """ Create an supplier with an product and add it to the database """
+        supplier = self._create_supplier()
+        productlist = self._create_productlisting()
+        supplier.productlist.append(productlist)
+        supplier.create()
+
+        # Assert that it was assigned an id and shows up in the database
+        self.assertEqual(supplier.id, 1)
+        supplier = Supplier.all()
+        self.assertEqual(len(supplier), 1)
+        self.assertEqual(productlist.id, 1)
+
+        # Confirm that the correct product was associated to the supplier
+        self.assertEqual(supplier[0].productlist[0].id, productlist.id)
+
+        # Create a new product listing and confirm that it gets associated to the supplier
+        productlist2 = self._create_productlisting()
+        supplier[0].productlist.append(productlist2)
+        supplier[0].save()
+        self.assertEqual(len(supplier[0].productlist), 2)
+        self.assertEqual(supplier[0].productlist[1].name, productlist2.name)
+
+
+
+
+    # def test_create_a_productlisting(self):
+    #     """ Create a product listing and assert that it exists """
+    #     productlisting = self._create_productlisting()
+    #     self.assertTrue(productlisting != None)
+    #     self.assertEqual(productlisting.id, None)
+    #     self.assertEqual(productlisting.supplier_id, 1)
+    #     self.assertEqual(productlisting.product_id, 1)
+    #     self.assertEqual(productlisting.name, "Macbook")
+    #     self.assertEqual(productlisting.wholesale_price, 999)
+

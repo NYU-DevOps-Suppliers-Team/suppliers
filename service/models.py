@@ -17,6 +17,81 @@ class DataValidationError(Exception):
 
     pass
 
+######################################################################
+#  P R O D U C T  L I S T   M O D E L
+######################################################################
+class ProductList(db.Model):
+    """
+    Class that represents an ProductListing
+    """
+
+    # Table Schema
+    id = db.Column(db.Integer, primary_key=True)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False)
+    product_id = db.Column(db.Integer)
+    name = db.Column(db.String(64))
+    wholesale_price = db.Column(db.Integer)
+
+    def __repr__(self):
+        return "<ProductListing %r id=[%s]>" % (self.product_id, self.id, self.supplier_id)
+
+    def create(self):
+        """
+        Creates a ProductListing to the database
+        """
+        logger.info("Creating %s", self.id)
+        self.id = None  # id must be none to generate next primary key
+        db.session.add(self)
+        db.session.commit()
+
+    def save(self):
+        """
+        Updates a ProductListing to the database
+        """
+        logger.info("Saving %s", self.id)
+        db.session.commit()
+
+    def delete(self):
+        """ Removes a ProductListing from the data store """
+        logger.info("Deleting %s", self.id)
+        db.session.delete(self)
+        db.session.commit()
+
+    def serialize(self):
+        """ Serializes a ProductListing into a dictionary """
+        return {"id": self.id,
+                "supplier_id": self.supplier_id,
+                "product_id": self.product_id,
+                "name": self.name,
+                "wholesale_price": self.wholesale_price
+        }
+
+    def deserialize(self, data):
+        """
+        Deserializes a ProductListing from a dictionary
+
+        Args:
+            data (dict): A dictionary containing the resource data
+        """
+        try:
+            self.supplier_id = data["supplier_id"]
+            self.product_id = data["product_id"]
+            self.name = data["name"]
+            self.wholesale_price = data.get("wholesale_price") 
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid ProductListing: missing " + error.args[0]
+            )
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid ProductListing: body of request contained bad or no data"
+            )
+        return self 
+
+
+######################################################################
+#  S U P P L I E R   M O D E L
+######################################################################
 
 class Supplier(db.Model):
     """
@@ -31,7 +106,7 @@ class Supplier(db.Model):
     email = db.Column(db.String(63), nullable=False)
     address = db.Column(db.String(256), nullable=False)
     phone_number = db.Column(db.String(20))
-    product_list = db.Column(db.ARRAY(db.Integer), nullable=False)
+    productlist = db.relationship('ProductList', backref='supplier', lazy=True)
 
     def __repr__(self):
         return "<Supplier %r id=[%s]>" % (self.name, self.id)
@@ -60,13 +135,16 @@ class Supplier(db.Model):
 
     def serialize(self):
         """ Serializes a Supplier into a dictionary """
-        return {"id": self.id,
+        supplier = {"id": self.id,
                 "name": self.name,
                 "address": self.address,
                 "email": self.email,
                 "phone_number": self.phone_number,
-                "product_list": self.product_list
+                "productlist": []
         }
+        for productlisting in self.productlist:
+            supplier['productlist'].append(productlisting.serialize())
+        return supplier
 
     def deserialize(self, data):
         """
@@ -80,7 +158,12 @@ class Supplier(db.Model):
             self.address = data["address"]
             self.email = data["email"]
             self.phone_number = data.get("phone_number") 
-            self.product_list = data["product_list"]         
+            # handle inner list of product listings
+            products = data.get("productlist")
+            for json_products in products:
+                productlisting = ProductList()
+                productlisting.deserialize(json_products)
+                self.productlist.append(productlisting)
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Supplier: missing " + error.args[0]
