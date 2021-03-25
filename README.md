@@ -1,5 +1,7 @@
 # NYU DevOps - Suppliers
 
+[![Build Status](https://travis-ci.com/NYU-DevOps-Suppliers-Team/suppliers.svg?branch=main)](https://travis-ci.com/NYU-DevOps-Suppliers-Team/suppliers)
+
 ### Resource Description
 The suppliers resource associates products with the vendor that supplies them to our business. It contains information about the supplier, and a collection of references to the products that they provide.
 
