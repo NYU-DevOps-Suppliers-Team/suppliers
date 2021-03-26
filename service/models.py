@@ -234,3 +234,15 @@ class Product(db.Model):
         """ Returns all of the Products in the database """
         logger.info("Processing all Products")
         return cls.query.all()
+
+    @classmethod
+    def find(cls, by_id):
+        """ Finds a Product by it's ID """
+        logger.info("Processing lookup for id %s ...", by_id)
+        return cls.query.get(by_id)
+
+    @classmethod
+    def find_or_404(cls, by_id):
+        """ Find a Product by it's id """
+        logger.info("Processing lookup or 404 for id %s ...", by_id)
+        return cls.query.get_or_404(by_id)
