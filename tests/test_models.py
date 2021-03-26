@@ -6,7 +6,7 @@ import logging
 import unittest
 from werkzeug.exceptions import NotFound
 import os
-from service.models import Supplier, DataValidationError, db
+from service.models import Supplier, Product, Association, DataValidationError, db
 from service import app
 
 DATABASE_URI = os.getenv(
@@ -44,8 +44,24 @@ class TestSupplier(unittest.TestCase):
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
             phone_number="800-555-1212",
-            product_list=[1,2,3,4]
+            products=[]
         )
+
+    def _create_association(self): 
+        supplier = Supplier(
+            name="Jim Jones",
+            address="123 Main Street, Anytown USA", 
+            email="jjones@gmail.com", 
+            phone_number="800-555-1212",
+            products=[]
+        )
+        product = self._create_product()
+        product.create()
+        association = Association(wholesale_price=999)
+        association.supplier_id = supplier.id
+        association.product_id = product.id
+        supplier.products.append(association)
+        return supplier
 
     def _create_suppliers(self, count):
         """ Factory method to create suppliers in bulk """
@@ -54,9 +70,14 @@ class TestSupplier(unittest.TestCase):
             test_supplier = self._create_supplier()
             suppliers.append(test_supplier)
         return suppliers
-
+    
+    def _create_product(self): 
+        return Product(
+            name="Macbook"
+        )
+    
     ######################################################################
-    #  T E S T   C A S E S
+    #  S U P P L I E R   T E S T   C A S E S
     ######################################################################
         
     def test_create_a_supplier(self):
@@ -68,14 +89,13 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
-        self.assertEqual(supplier.product_list, [1,2,3,4])
+        self.assertEqual(supplier.products,[])
 
     #Test supplier without optional phone number 
         supplier = Supplier(
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
-            email="jjones@gmail.com",
-            product_list=[1,2,3,4]
+            email="jjones@gmail.com"
         )    
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, None)
@@ -140,8 +160,6 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(data["email"], supplier.email)
         self.assertIn("phone_number", data)
         self.assertEqual(data["phone_number"], supplier.phone_number)
-        self.assertIn("product_list", data)
-        self.assertEqual(data["product_list"], supplier.product_list)
 
     def test_deserialize_a_supplier(self):
         """ Test deserialization of a Supplier """
@@ -151,7 +169,7 @@ class TestSupplier(unittest.TestCase):
             "address": "123 Main Street, Anytown USA", 
             "email": "jjones@gmail.com",
             "phone_number": "800-555-1212",
-            "product_list": [1,2,3,4]
+            "products": []
         }
         supplier = Supplier()
         supplier.deserialize(data)
@@ -161,7 +179,6 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
-        self.assertEqual(supplier.product_list, [1,2,3,4])
 
     def test_deserialize_missing_data(self):
         """ Test deserialization of a supplier """
@@ -199,29 +216,24 @@ class TestSupplier(unittest.TestCase):
             name="Supplier 1",
             email="supplier1@email.com",
             address="Suplier address 1",
-            phone_number="312 478 9890",
-            product_list=[1, 2, 3, 4]
+            phone_number="312 478 9890"
         ).create()
 
         Supplier(
             name="Supplier 2",
             email="supplier2@email.com",
-            address="Suplier address 2",
-            product_list=[1, 2, 3, 4, 5]
+            address="Suplier address 2"
         ).create()
         
         suppliers = Supplier.find_by_name("Supplier 1")
         self.assertEqual(suppliers[0].email, "supplier1@email.com")
         self.assertEqual(suppliers[0].address, "Suplier address 1")
         self.assertEqual(suppliers[0].phone_number, "312 478 9890")
-        self.assertEqual(suppliers[0].product_list, [1, 2, 3, 4])
 
         suppliers = Supplier.find_by_name("Supplier 2")
         self.assertEqual(suppliers[0].email, "supplier2@email.com")
         self.assertEqual(suppliers[0].address, "Suplier address 2")
         self.assertEqual(suppliers[0].phone_number, None)
-        self.assertEqual(suppliers[0].product_list, [1, 2, 3, 4, 5])
-
 
     def test_find_or_404_found(self):
         """ Find or return 404 found """
@@ -236,9 +248,158 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.email, suppliers[1].email)
         self.assertEqual(supplier.address, suppliers[1].address)
         self.assertEqual(supplier.phone_number, suppliers[1].phone_number)
-        self.assertEqual(supplier.product_list, suppliers[1].product_list)
-
 
     def test_find_or_404_not_found(self):
         """ Find or return 404 NOT found """
         self.assertRaises(NotFound, Supplier.find_or_404, 0)
+
+    def test_deserialize_product_key_error(self):
+        """ Deserialize a product listing with a KeyError """
+        products = Product()
+        self.assertRaises(DataValidationError, products.deserialize, {})
+
+    def test_deserialize_product_type_error(self):
+        """ Deserialize a product listing with a TypeError """
+        products = Product()
+        self.assertRaises(DataValidationError, products.deserialize, [])
+
+    ######################################################################
+    #  P R O D U C T   T E S T   C A S E S
+    ######################################################################
+        
+    def test_create_a_product(self):
+        """ Create a Product and assert that it exists """
+        product = self._create_product()
+        self.assertTrue(product != None)
+        self.assertEqual(product.id, None)
+        self.assertEqual(product.name, "Macbook")
+
+    def test_add_a_product(self):
+        """ Create a Product and add it to the database """
+        products = Product.all()
+        self.assertEqual(products, [])
+
+        product = self._create_product()
+        self.assertTrue(product != None)
+        self.assertEqual(product.id, None)
+        product.create()
+
+        # Assert that it was assigned an id and shows up in the database
+        self.assertNotEqual(product.id, None)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+
+    def test_update_a_product(self):
+        """ Update a Product """
+        product = self._create_product()
+        logging.debug(product)
+        product.create()
+        logging.debug(product)
+        self.assertEqual(product.id, 1)
+        # Change it an save it
+        product.name = "Updated Name"
+        original_id = product.id
+        product.save()
+        self.assertEqual(product.id, original_id)
+        self.assertEqual(product.name, "Updated Name")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+        self.assertEqual(products[0].id, 1)
+        self.assertEqual(products[0].name, "Updated Name")
+
+    def test_delete_a_product(self):
+        """ Delete a Product """
+        product = self._create_product()
+        product.create()
+        self.assertEqual(len(Product.all()), 1)
+        # delete the product and make sure it isn't in the database
+        product.delete()
+        self.assertEqual(len(Product.all()), 0)
+
+    def test_serialize_a_product(self):
+        """ Test serialization of a Product """
+        product = self._create_product()
+        data = product.serialize()
+        self.assertNotEqual(data, None)
+        self.assertIn("id", data)
+        self.assertEqual(data["id"], product.id)
+        self.assertIn("name", data)
+        self.assertEqual(data["name"], product.name)
+
+
+    def test_deserialize_a_product(self):
+        """ Test deserialization of a Product """
+        data = {
+            "id": 1,
+            "name": "Macbook"
+        }
+        product = Product()
+        product.deserialize(data)
+        self.assertNotEqual(product, None)
+        self.assertEqual(product.id, None)
+        self.assertEqual(product.name, "Macbook")
+
+
+    ######################################################################
+    #  A S S O C I A T I O N   T E S T   C A S E S
+    ######################################################################
+        
+    def test_create_asociation(self):
+        """ Create a Supplier with a Product and assert that it exists """
+        supplier = self._create_association()
+        supplier.create()
+        self.assertTrue(supplier != None)
+        self.assertEqual(supplier.id, 1)
+        self.assertEqual(supplier.name, "Jim Jones")
+        self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
+        self.assertEqual(supplier.email, "jjones@gmail.com")
+        self.assertEqual(supplier.phone_number, "800-555-1212")
+        self.assertEqual(supplier.products[0].supplier_id, 1)
+        self.assertEqual(supplier.products[0].product_id, 1)
+        self.assertEqual(supplier.products[0].wholesale_price, 999)
+        self.assertEqual(supplier.products[0].product.name, "Macbook")
+
+    def test_update_association(self):
+        """ Create a Supplier-Product association, then update it's wholesale price """
+        supplier = self._create_association()
+        logging.debug(supplier)
+        supplier.create()
+        logging.debug(supplier)
+        self.assertEqual(supplier.id, 1)
+        # Change it an save it
+        supplier.products[0].wholesale_price = 1000
+        original_id = supplier.id
+        supplier.save()
+        self.assertEqual(supplier.id, original_id)
+        self.assertEqual(supplier.products[0].wholesale_price, 1000)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        associations = Association.all()
+        self.assertEqual(len(associations), 1)
+        self.assertEqual(associations[0].supplier_id, 1)
+        self.assertEqual(associations[0].wholesale_price, 1000)
+
+    def test_delete_association(self):
+        """ Delete an Association """
+        supplier = self._create_association()
+        supplier.create()
+        self.assertEqual(len(Association.all()), 1)
+        # delete the pet and make sure it isn't in the database
+        supplier.products[0].delete()
+        self.assertEqual(len(Association.all()), 0)
+
+    def test_multiple_associations(self):
+        """ Create two associations, list them out, and confirm both were created """    
+        supplier = self._create_association()     
+        supplier.create()
+        supplier2 = self._create_association()     
+        supplier2.create()
+        logging.debug(supplier)
+        # make sure they got saved
+        self.assertEqual(len(Association.all()), 2)
+        # make sure the first association was connected to supplier 1
+        self.assertEqual(supplier.products[0].supplier_id, 1)
+        # make sure the second association was connected to supplier 2
+        self.assertEqual(supplier2.products[0].supplier_id,2)
