@@ -200,10 +200,10 @@ class TestSuppplierServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-        # # Make sure location header is set
-        # location = resp.headers.get("Location", None)
-        # self.assertIsNotNone(location)
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
 
-        # # Check the data is correct
-        # new_supplier = resp.get_json()
-        # self.assertEqual(new_product["name"], test_product.name)
+        # Check the data is correct
+        new_product = resp.get_json()
+        self.assertEqual(new_product["name"], test_product.name)
