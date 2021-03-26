@@ -10,7 +10,7 @@ import logging
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from flask_api import status  # HTTP Status Codes
-from service.models import db, Supplier
+from service.models import db, Supplier, Product
 from service.routes import app, init_db 
 
 DATABASE_URI = os.getenv(
@@ -66,6 +66,10 @@ class TestSuppplierServer(TestCase):
             suppliers.append(test_supplier)
         return suppliers
 
+    def _create_product(self): 
+        return Product(
+            name="Macbook"
+        )
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -183,4 +187,23 @@ class TestSuppplierServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
+######################################################################
+#  PRODUCT ROUTE TEST CASES
+######################################################################
+    def test_create_product(self):
+        """ Create a new Product """
+        test_product = self._create_product()
+        test_product.create()
+        logging.debug(test_product)
+        resp = self.app.post(
+            "/products", json=test_product.serialize(), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+        # Check the data is correct
+        new_product = resp.get_json()
+        self.assertEqual(new_product["name"], test_product.name)
