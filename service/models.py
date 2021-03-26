@@ -27,6 +27,18 @@ class Association(db.Model):
     wholesale_price = db.Column(db.Integer)
     product = db.relationship("Product")  
     
+    def delete(self):
+        """ Removes a Association from the data store """
+        logger.info("Deleting association")
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def all(cls):
+        """ Returns all of the Associations in the database """
+        logger.info("Processing all Associations")
+        return cls.query.all()
+    
 ######################################################################
 #  S U P P L I E R   M O D E L
 ######################################################################
@@ -153,7 +165,7 @@ class Supplier(db.Model):
         return cls.query.filter(cls.name == name)
 
 ######################################################################
-#  P R O D U C T S  M O D E L
+#  P R O D U C T  M O D E L
 ######################################################################
 class Product(db.Model):
     """

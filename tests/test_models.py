@@ -47,7 +47,7 @@ class TestSupplier(unittest.TestCase):
             products=[]
         )
 
-    def _create_supplier_with_product(self): 
+    def _create_association(self): 
         supplier = Supplier(
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
@@ -55,10 +55,11 @@ class TestSupplier(unittest.TestCase):
             phone_number="800-555-1212",
             products=[]
         )
-        association1 = Association(supplier_id = supplier.id, wholesale_price=999)
-        association.product = Product(name="Macbook")
-        association2 = Association(supplier_id = supplier.id, wholesale_price=999)
-        association.product = Product(name="Macbook")
+        product = self._create_product()
+        product.create()
+        association = Association(wholesale_price=999)
+        association.supplier_id = supplier.id
+        association.product_id = product.id
         supplier.products.append(association)
         return supplier
 
@@ -345,26 +346,60 @@ class TestSupplier(unittest.TestCase):
     #  A S S O C I A T I O N   T E S T   C A S E S
     ######################################################################
         
-    # def test_create_a_supplier_with_product(self):
-    #     """ Create a Supplier with a Product and assert that it exists """
-    #     supplier = self._create_supplier_with_product()
-    #     supplier.create()
-    #     self.assertTrue(supplier != None)
-    #     self.assertEqual(supplier.id, 1)
-    #     self.assertEqual(supplier.name, "Jim Jones")
-    #     self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
-    #     self.assertEqual(supplier.email, "jjones@gmail.com")
-    #     self.assertEqual(supplier.phone_number, "800-555-1212")
-    #     self.assertEqual(supplier.products[0].supplier_id, 1)
-    #     self.assertEqual(supplier.products[0].product_id, 1)
-    #     self.assertEqual(supplier.products[0].wholesale_price, 999)
-    #     self.assertEqual(supplier.products[0].product.name, "Macbook")
+    def test_create_asociation(self):
+        """ Create a Supplier with a Product and assert that it exists """
+        supplier = self._create_association()
+        supplier.create()
+        self.assertTrue(supplier != None)
+        self.assertEqual(supplier.id, 1)
+        self.assertEqual(supplier.name, "Jim Jones")
+        self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
+        self.assertEqual(supplier.email, "jjones@gmail.com")
+        self.assertEqual(supplier.phone_number, "800-555-1212")
+        self.assertEqual(supplier.products[0].supplier_id, 1)
+        self.assertEqual(supplier.products[0].product_id, 1)
+        self.assertEqual(supplier.products[0].wholesale_price, 999)
+        self.assertEqual(supplier.products[0].product.name, "Macbook")
 
+    def test_update_association(self):
+        """ Create a Supplier-Product association, then update it's wholesale price """
+        supplier = self._create_association()
+        logging.debug(supplier)
+        supplier.create()
+        logging.debug(supplier)
+        self.assertEqual(supplier.id, 1)
+        # Change it an save it
+        supplier.products[0].wholesale_price = 1000
+        original_id = supplier.id
+        supplier.save()
+        self.assertEqual(supplier.id, original_id)
+        self.assertEqual(supplier.products[0].wholesale_price, 1000)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        associations = Association.all()
+        self.assertEqual(len(associations), 1)
+        self.assertEqual(associations[0].supplier_id, 1)
+        self.assertEqual(associations[0].wholesale_price, 1000)
 
+    def test_delete_association(self):
+        """ Delete an Association """
+        supplier = self._create_association()
+        supplier.create()
+        self.assertEqual(len(Association.all()), 1)
+        # delete the pet and make sure it isn't in the database
+        supplier.products[0].delete()
+        self.assertEqual(len(Association.all()), 0)
 
-    # THIS WAS USED TO TROUBLESHOOT THE ASSOCIATION TABLE
-    # def test_create_a_supplier_with_product(self):
-    #     """ Create a Supplier with an association and print the supplier name, product, and price """
-    #     supplier = self._create_supplier_with_product()
-    #     supplier.create()
-    #     print(supplier.name, supplier.products[0].product.name, supplier.products[0].wholesale_price)
+    def test_multiple_associations(self):
+        """ Create two associations, list them out, and confirm both were created """    
+        supplier = self._create_association()     
+        supplier.create()
+        supplier2 = self._create_association()     
+        supplier2.create()
+        logging.debug(supplier)
+        # make sure they got saved
+        self.assertEqual(len(Association.all()), 2)
+        # make sure the first association was connected to supplier 1
+        self.assertEqual(supplier.products[0].supplier_id, 1)
+        # make sure the second association was connected to supplier 2
+        self.assertEqual(supplier2.products[0].supplier_id,2)
