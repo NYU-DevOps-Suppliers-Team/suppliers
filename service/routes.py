@@ -213,11 +213,26 @@ def create_products():
     product.deserialize(request.get_json())
     product.create()
     message = product.serialize()
-    location_url = "not implemented"
-    #location_url = url_for("get_product", product_id=product.id, _external=True)
+    location_url = url_for("get_product", product_id=product.id, _external=True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+    
+#####################################################################    
+# READ A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["GET"])
+def get_product(product_id):
+    """
+    Read a single Product
+    This endpoint will return a product based on it's id
+    """
+    app.logger.info("Request for product with id: %s", product_id)
+    product = Product.find(product_id)
+    if not product:
+        raise NotFound("product with id '{}' was not found.".format(product_id))
+    return make_response(jsonify(product.serialize()), status.HTTP_200_OK)
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################

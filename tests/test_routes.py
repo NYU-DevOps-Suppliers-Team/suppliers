@@ -61,8 +61,8 @@ class TestSuppplierServer(TestCase):
             self.assertEqual(
                 resp.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
             )
-            new_pet = resp.get_json()
-            test_supplier.id = new_pet["id"]
+            new_supplier = resp.get_json()
+            test_supplier.id = new_supplier["id"]
             suppliers.append(test_supplier)
         return suppliers
 
@@ -70,6 +70,22 @@ class TestSuppplierServer(TestCase):
         return Product(
             name="Macbook"
         )
+
+    def _create_products(self, count):
+        """ Factory method to create products in bulk """
+        products = []
+        for _ in range(count):
+            test_product = self._create_product()
+            resp = self.app.post(
+                "/products", json=test_product.serialize(), content_type="application/json"
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test product"
+            )
+            new_product = resp.get_json()
+            test_product.id = new_product["id"]
+            products.append(test_product)
+        return products
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -207,3 +223,21 @@ class TestSuppplierServer(TestCase):
         # Check the data is correct
         new_product = resp.get_json()
         self.assertEqual(new_product["name"], test_product.name)
+
+    def test_get_product_not_found(self):
+        """ Get a product thats not found """
+        resp = self.app.get("/products/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_product(self):
+        """ Get a single Product """
+        # get the id of a product
+        test_products = self._create_products(5)
+        test_product = test_products[0]
+        test_product.create()
+        resp = self.app.get(
+            "/products/{}".format(test_product.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["name"], test_product.name)
