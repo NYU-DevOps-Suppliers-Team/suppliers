@@ -14,7 +14,7 @@ from werkzeug.exceptions import NotFound
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Supplier, DataValidationError
+from service.models import Supplier, Product, DataValidationError
 
 # Import Flask application
 from . import app
@@ -198,7 +198,26 @@ def update_suppliers(supplier_id):
     supplier.save()
     return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
 
-
+######################################################################
+# ADD A PRODUCT AKA CREATE
+######################################################################
+@app.route("/products", methods=["POST"])
+def create_products():
+    """
+    Creates a Product
+    This endpoint will create a Product based the data in the body that is posted
+    """
+    app.logger.info("Request to create a Product")
+    check_content_type("application/json")
+    product = Product()
+    product.deserialize(request.get_json())
+    product.create()
+    message = product.serialize()
+    location_url = "not implemented"
+    #location_url = url_for("get_product", product_id=product.id, _external=True)
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
