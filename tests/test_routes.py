@@ -241,3 +241,25 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], test_product.name)
+
+    def test_update_product(self):
+        """ Update an existing product """
+        # create a product to update
+        test_product = self._create_product()
+        resp = self.app.post(
+            "/products", json=test_product.serialize(), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the product
+        new_product = resp.get_json()
+        logging.debug(new_product)
+        new_product["name"] = "Updated Name"
+        resp = self.app.put(
+            "/products/{}".format(new_product["id"]),
+            json=new_product,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_product = resp.get_json()
+        self.assertEqual(updated_product["name"], "Updated Name")
