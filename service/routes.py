@@ -268,22 +268,6 @@ def delete_products(id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
-#  U T I L I T Y   F U N C T I O N S
-######################################################################
-
-def init_db():
-    """ Initialies the SQLAlchemy app """
-    global app
-    Supplier.init_db(app)
-
-def check_content_type(content_type):
-    """ Checks that the media type is correct """
-    if request.headers["Content-Type"] == content_type:
-        return
-    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
-    abort(415, "Content-Type must be {}".format(content_type))
-
-######################################################################
 # LIST ALL PRODUCTS
 ######################################################################
 @app.route("/products", methods=["GET"])
@@ -299,3 +283,19 @@ def list_products():
 
     results = [product.serialize() for product in products]
     return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+
+def init_db():
+    """ Initialies the SQLAlchemy app """
+    global app
+    Supplier.init_db(app)
+
+def check_content_type(content_type):
+    """ Checks that the media type is correct """
+    if request.headers["Content-Type"] == content_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    abort(415, "Content-Type must be {}".format(content_type))
