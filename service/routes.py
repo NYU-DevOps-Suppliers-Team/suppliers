@@ -234,6 +234,57 @@ def get_product(product_id):
     return make_response(jsonify(product.serialize()), status.HTTP_200_OK)
 
 ######################################################################
+# UPDATE A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_products(product_id):
+    """
+    Update a Product
+    This endpoint will update a Product based the body that is posted
+    """
+    app.logger.info("Request to update Product with id: %s", product_id)
+    check_content_type("application/json")
+    product = Product.find(product_id)
+    if not product:
+        raise NotFound("Product with id '{}' was not found.".format(product_id))
+    product.deserialize(request.get_json())
+    product.id = product_id
+    product.save()
+    return make_response(jsonify(product.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# DELETE A PRODUCT
+######################################################################
+@app.route("/products/<int:id>", methods=["DELETE"])
+def delete_products(id):
+    """
+    Delete a Product
+    This endpoint will delete a Product based the id specified in the path
+    """
+    app.logger.info("Request to delete product with id: %s", id)
+    product = Product.find(id)
+    if product:
+        product.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
+# LIST ALL PRODUCTS
+######################################################################
+@app.route("/products", methods=["GET"])
+def list_products():
+    """ Returns all of the products """
+    app.logger.info("Request for product list")
+    products = []
+    name = request.args.get("name")
+    if name:
+        products = Product.find_by_name(name)
+    else:
+        products = Product.all()
+
+    results = [product.serialize() for product in products]
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
