@@ -266,7 +266,7 @@ def delete_products(id):
     if product:
         product.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
-    
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
@@ -282,3 +282,20 @@ def check_content_type(content_type):
         return
     app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
     abort(415, "Content-Type must be {}".format(content_type))
+
+######################################################################
+# LIST ALL PRODUCTS
+######################################################################
+@app.route("/products", methods=["GET"])
+def list_products():
+    """ Returns all of the products """
+    app.logger.info("Request for product list")
+    products = []
+    name = request.args.get("name")
+    if name:
+        products = Product.find_by_name(name)
+    else:
+        products = Product.all()
+
+    results = [product.serialize() for product in products]
+    return make_response(jsonify(results), status.HTTP_200_OK)

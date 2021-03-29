@@ -278,3 +278,11 @@ class TestSuppplierServer(TestCase):
             "/products/".format(test_product.id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_product_list(self):
+        """ Get a list of Products """
+        self._create_products(5)
+        resp = self.app.get("/products")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
