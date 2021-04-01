@@ -62,7 +62,7 @@ class TestSupplier(unittest.TestCase):
 
     def _create_association(self): 
          supplier = self._create_supplier()
-         supplier.create()
+        #  supplier.create()
          product = self._create_product()
          product.create()
          association = Association(wholesale_price=999)
@@ -408,12 +408,12 @@ class TestSupplier(unittest.TestCase):
         data = supplier.serialize()
         logging.debug(data)
         self.assertNotEqual(data, None)
-        # self.assertIn("supplier_id", data.products[0])
-        # self.assertEqual(data.products[0]["supplier_id"], supplier.supplier_id)
-        # self.assertIn("product_id", data.products[0])
-        # self.assertEqual(data.products[0]["product_id"], supplier.product_id)
-        # self.assertIn("wholesale_price", data.products[0])
-        # self.assertEqual(data.products[0]["wholesale_price"], supplier.wholesale_price)
+        self.assertIn("supplier_id", data.products[0])
+        self.assertEqual(data.products[0]["supplier_id"], supplier.supplier_id)
+        self.assertIn("product_id", data.products[0])
+        self.assertEqual(data.products[0]["product_id"], supplier.product_id)
+        self.assertIn("wholesale_price", data.products[0])
+        self.assertEqual(data.products[0]["wholesale_price"], supplier.wholesale_price)
 
 
     def test_deserialize_an_association(self):
