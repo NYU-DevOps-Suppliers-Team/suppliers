@@ -287,8 +287,8 @@ def list_products():
 ######################################################################
 # CREATE A NEW ASSOCIATION
 ######################################################################
-@app.route('/suppliers/<int:supplier_id>/products', methods=["POST"])
-def create_association(supplier_id):
+@app.route('/suppliers/<int:supplier_id>/products/<int:product_id>', methods=["POST"])
+def create_association(supplier_id, product_id):
     """
     Creates an Association between a supplier and a product
     This endpoint will create an Association based the data in the body that is posted
@@ -297,11 +297,10 @@ def create_association(supplier_id):
     check_content_type("application/json")
     
     supplier = Supplier.find_or_404(supplier_id)
-    product = Product()
-    product.deserialize(request.get_json())
+    product = Product.find_or_404(product_id)
     association = Association()
-    association.supplier_id = supplier.id
-    association.product_id = product.id
+    association.deserialize(request.get_json())
+    association.product = product
     supplier.products.append(association)
     supplier.save()
 

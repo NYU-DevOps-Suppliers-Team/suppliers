@@ -49,22 +49,6 @@ class TestSuppplierServer(TestCase):
             phone_number="800-555-1212",
             products=[]
         )
-    def _create_association(self): 
-        supplier = Supplier(
-            name="Jim Jones",
-            address="123 Main Street, Anytown USA", 
-            email="jjones@gmail.com", 
-            phone_number="800-555-1212",
-            products=[]
-        )
-        supplier.create()
-        product = self._create_product()
-        product.create()
-        association = Association(wholesale_price=999)
-        association.supplier_id = supplier.id
-        association.product_id = product.id
-        supplier.products.append(association)
-        return supplier
 
     def _create_suppliers(self, count):
         """ Factory method to create suppliers in bulk """
@@ -102,6 +86,18 @@ class TestSuppplierServer(TestCase):
             test_product.id = new_product["id"]
             products.append(test_product)
         return products
+
+    def _create_association(self): 
+        supplier = self._create_supplier()
+        # supplier.create()
+        product = self._create_product()
+        product.create()
+        association = Association(wholesale_price=999)
+        association.supplier_id = supplier.id
+        association.product_id = product.id
+        supplier.products.append(association)
+        return supplier
+        
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -315,14 +311,26 @@ class TestSuppplierServer(TestCase):
         product = self._create_product()
         product.create()
 
+        data = dict(
+            supplier_id=supplier.id,
+            product_id=product.id,
+            wholesale_price=24
+        )
+
         resp = self.app.post(
-            "/suppliers/{}/products".format(supplier.id),
-            json=product.serialize(),
+            "/suppliers/{}/products/{}".format(supplier.id, product.id),
+            json=data,
             content_type="application/json"
         )
+
+        logging.debug(resp)
      
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         data = resp.get_json()
         logging.debug(data)
+
         self.assertEqual(data["supplier_id"], supplier.id)
-        self.assertEqual(data["product_id"], product.id)
+        self.assertEqual(data["product_id"], supplier.products[0].product_id)
+        self.assertEqual(data["wholesale_price"], supplier.products[0].wholesale_price)
+
+

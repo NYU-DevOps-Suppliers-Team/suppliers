@@ -25,7 +25,8 @@ class Association(db.Model):
     supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     wholesale_price = db.Column(db.Integer)
-    product = db.relationship("Product")  
+    product = db.relationship("Product", back_populates="suppliers")
+    supplier = db.relationship("Supplier", back_populates="products")
     
     def serialize(self):
         """ Serializes an Association into a dictionary """
@@ -34,6 +35,28 @@ class Association(db.Model):
             "product_id": self.product_id,
             "wholesale_price": self.wholesale_price
             }
+
+    def deserialize(self, data):
+        """
+        Deserializes a Association from a dictionary
+
+        Args:
+            data (dict): A dictionary containing the resource data
+        """
+        try:
+            self.wholesale_price = data["wholesale_price"]
+            self.supplier_id = data["supplier_id"]
+            self.product_id = data["product_id"]
+
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid Association: missing " + error.args[0]
+            )
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Association: body of request contained bad or no data"
+            )
+        return self
 
     def delete(self):
         """ Removes a Association from the data store """
@@ -72,7 +95,7 @@ class Supplier(db.Model):
     email = db.Column(db.String(63), nullable=False)
     address = db.Column(db.String(256), nullable=False)
     phone_number = db.Column(db.String(20))
-    products = db.relationship("Association")
+    products = db.relationship("Association", back_populates="supplier")
 
     def __repr__(self):
         return "<Supplier %r id=[%s]>" % (self.name, self.id)
@@ -191,6 +214,7 @@ class Product(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    suppliers = db.relationship("Association", back_populates="product") 
 
     def __repr__(self):
         return "<Product %r id=[%s]>" % (self.name, self.id)
