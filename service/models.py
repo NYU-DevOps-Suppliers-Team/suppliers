@@ -27,6 +27,14 @@ class Association(db.Model):
     wholesale_price = db.Column(db.Integer)
     product = db.relationship("Product")  
     
+    def serialize(self):
+        """ Serializes an Association into a dictionary """
+        return {
+            "supplier_id": self.supplier_id,
+            "product_id": self.product_id,
+            "wholesale_price": self.wholesale_price
+            }
+
     def delete(self):
         """ Removes a Association from the data store """
         logger.info("Deleting association")
@@ -38,6 +46,12 @@ class Association(db.Model):
         """ Returns all of the Associations in the database """
         logger.info("Processing all Associations")
         return cls.query.all()
+
+    @classmethod
+    def find(cls, supplier_id, product_id):
+        """ Finds Association by it's ID """
+        logger.info("Processing lookup for id %s ...", supplier_id)
+        return cls.query.get((supplier_id, product_id))
     
 ######################################################################
 #  S U P P L I E R   M O D E L
@@ -185,7 +199,7 @@ class Product(db.Model):
         """
         Creates a Product to the database
         """
-        logger.info("Creating %s", self.id)
+        logger.info("Creating %s", self.name)
         self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
@@ -218,6 +232,7 @@ class Product(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
+            self.id = data["id"]
             self.name = data["name"]
         except KeyError as error:
             raise DataValidationError(

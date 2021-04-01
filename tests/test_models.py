@@ -338,7 +338,7 @@ class TestSupplier(unittest.TestCase):
         product = Product()
         product.deserialize(data)
         self.assertNotEqual(product, None)
-        self.assertEqual(product.id, None)
+        self.assertEqual(product.id, 1)
         self.assertEqual(product.name, "Macbook")
 
 
@@ -389,6 +389,21 @@ class TestSupplier(unittest.TestCase):
         # delete the pet and make sure it isn't in the database
         supplier.products[0].delete()
         self.assertEqual(len(Association.all()), 0)
+
+    def test_delete_association2(self):
+        """ Delete an Association """
+        supplier = self._create_association()
+        supplier.create()
+        product = self._create_product()
+        product.create()
+        association2 = Association(wholesale_price=1000)
+        association2.supplier_id = supplier.id
+        association2.product_id = product.id
+        supplier.products.append(association2)
+        self.assertEqual(len(Association.all()), 2)
+        # delete the pet and make sure it isn't in the database
+        supplier.products[0].delete()
+        self.assertEqual(len(Association.all()), 1)
 
     def test_multiple_associations(self):
         """ Create two associations, list them out, and confirm both were created """    

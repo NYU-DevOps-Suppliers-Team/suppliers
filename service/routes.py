@@ -14,7 +14,7 @@ from werkzeug.exceptions import NotFound
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Supplier, Product, DataValidationError
+from service.models import Supplier, Product, Association, DataValidationError
 
 # Import Flask application
 from . import app
@@ -283,6 +283,34 @@ def list_products():
 
     results = [product.serialize() for product in products]
     return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
+# CREATE A NEW ASSOCIATION
+######################################################################
+@app.route('/suppliers/<int:supplier_id>/products', methods=["POST"])
+def create_association(supplier_id):
+    """
+    Creates an Association between a supplier and a product
+    This endpoint will create an Association based the data in the body that is posted
+    """
+    app.logger.info("Request to create an Association")
+    check_content_type("application/json")
+    
+    supplier = Supplier.find_or_404(supplier_id)
+    product = Product()
+    product.deserialize(request.get_json())
+    association = Association()
+    association.supplier_id = supplier.id
+    association.product_id = product.id
+    supplier.products.append(association)
+    supplier.save()
+
+    message = association.serialize()
+    #location_url = url_for("get_association", supplier_id=supplier.id, _external=True)
+    location_url = "get function not implemented yet"
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
