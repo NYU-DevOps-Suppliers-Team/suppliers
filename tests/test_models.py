@@ -61,15 +61,17 @@ class TestSupplier(unittest.TestCase):
         )
 
     def _create_association(self): 
-        supplier = self._create_supplier()
-        # supplier.create()
-        product = self._create_product()
-        product.create()
-        association = Association(wholesale_price=999)
-        association.supplier_id = supplier.id
-        association.product_id = product.id
-        supplier.products.append(association)
-        return supplier
+         supplier = self._create_supplier()
+         supplier.create()
+         product = self._create_product()
+         product.create()
+         association = Association(wholesale_price=999)
+         association.supplier_id = supplier.id
+         association.product_id = product.id
+         association.product = product
+         supplier.products.append(association)
+         supplier.save()
+         return supplier
     
     ######################################################################
     #  S U P P L I E R   T E S T   C A S E S
@@ -344,7 +346,7 @@ class TestSupplier(unittest.TestCase):
     def test_create_asociation(self):
         """ Create a Supplier with a Product and assert that it exists """
         supplier = self._create_association()
-        supplier.create()
+        # supplier.create()
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, 1)
         self.assertEqual(supplier.name, "Jim Jones")
@@ -359,8 +361,6 @@ class TestSupplier(unittest.TestCase):
     def test_update_association(self):
         """ Create a Supplier-Product association, then update it's wholesale price """
         supplier = self._create_association()
-        logging.debug(supplier)
-        supplier.create()
         logging.debug(supplier)
         self.assertEqual(supplier.id, 1)
         # Change it an save it
@@ -379,16 +379,16 @@ class TestSupplier(unittest.TestCase):
     def test_delete_association(self):
         """ Delete an Association """
         supplier = self._create_association()
-        supplier.create()
+        # supplier.create()
         self.assertEqual(len(Association.all()), 1)
         # delete the pet and make sure it isn't in the database
         supplier.products[0].delete()
         self.assertEqual(len(Association.all()), 0)
 
     def test_delete_association2(self):
-        """ Delete an Association """
+        """ Delete an Association 2 """
         supplier = self._create_association()
-        supplier.create()
+        # supplier.create()
         product = self._create_product()
         product.create()
         association2 = Association(wholesale_price=1000)
@@ -404,7 +404,6 @@ class TestSupplier(unittest.TestCase):
     def test_serialize_an_association(self):
         """ Test serialization of a Association """
         supplier = self._create_association()
-        supplier.create()
 
         data = supplier.serialize()
         logging.debug(data)
@@ -449,9 +448,7 @@ class TestSupplier(unittest.TestCase):
     def test_multiple_associations(self):
         """ Create two associations, list them out, and confirm both were created """    
         supplier = self._create_association()     
-        supplier.create()
         supplier2 = self._create_association()     
-        supplier2.create()
         logging.debug(supplier)
         # make sure they got saved
         self.assertEqual(len(Association.all()), 2)
