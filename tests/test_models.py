@@ -400,21 +400,22 @@ class TestSupplier(unittest.TestCase):
         supplier.products[0].delete()
         self.assertEqual(len(Association.all()), 1)
 
-
     def test_serialize_an_association(self):
         """ Test serialization of a Association """
-        supplier = self._create_association()
-
-        data = supplier.serialize()
+        association = Association(
+            supplier_id=20,
+            product_id=10,
+            wholesale_price=99
+        )
+        data = association.serialize()
         logging.debug(data)
         self.assertNotEqual(data, None)
-        self.assertIn("supplier_id", data.products[0])
-        self.assertEqual(data.products[0]["supplier_id"], supplier.supplier_id)
-        self.assertIn("product_id", data.products[0])
-        self.assertEqual(data.products[0]["product_id"], supplier.product_id)
-        self.assertIn("wholesale_price", data.products[0])
-        self.assertEqual(data.products[0]["wholesale_price"], supplier.wholesale_price)
-
+        self.assertIn("supplier_id", data)
+        self.assertEqual(data["supplier_id"], association.supplier_id)
+        self.assertIn("product_id", data)
+        self.assertEqual(data["product_id"], association.product_id)
+        self.assertIn("wholesale_price", data)
+        self.assertEqual(data["wholesale_price"], association.wholesale_price)
 
     def test_deserialize_an_association(self):
         """ Test deserialization of a association """
