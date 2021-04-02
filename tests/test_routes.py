@@ -10,7 +10,7 @@ import logging
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from flask_api import status  # HTTP Status Codes
-from service.models import db, Supplier, Product
+from service.models import db, Supplier, Product, Association
 from service.routes import app, init_db 
 
 DATABASE_URI = os.getenv(
@@ -86,6 +86,17 @@ class TestSuppplierServer(TestCase):
             test_product.id = new_product["id"]
             products.append(test_product)
         return products
+
+    def _create_association(self): 
+        supplier = self._create_supplier()
+        product = self._create_product()
+        product.create()
+        association = Association(wholesale_price=999)
+        association.supplier_id = supplier.id
+        association.product_id = product.id
+        supplier.products.append(association)
+        return supplier
+
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -286,3 +297,39 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
+
+######################################################################
+#  ASSOCIATION ROUTE TEST CASES
+######################################################################
+
+    def test_add_association(self):
+        """ Add an product to a supplier """
+
+        supplier = self._create_supplier()
+        supplier.create()
+        product = self._create_product()
+        product.create()
+
+        data = dict(
+            supplier_id=supplier.id,
+            product_id=product.id,
+            wholesale_price=24
+        )
+
+        resp = self.app.post(
+            "/suppliers/{}/products/{}".format(supplier.id, product.id),
+            json=data,
+            content_type="application/json"
+        )
+
+        logging.debug(resp)
+     
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        data = resp.get_json()
+        logging.debug(data)
+
+        self.assertEqual(data["supplier_id"], supplier.id)
+        self.assertEqual(data["product_id"], supplier.products[0].product_id)
+        self.assertEqual(data["wholesale_price"], supplier.products[0].wholesale_price)
+
+

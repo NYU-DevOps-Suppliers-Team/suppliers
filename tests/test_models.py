@@ -46,35 +46,32 @@ class TestSupplier(unittest.TestCase):
             phone_number="800-555-1212",
             products=[]
         )
-
-    def _create_association(self): 
-        supplier = Supplier(
-            name="Jim Jones",
-            address="123 Main Street, Anytown USA", 
-            email="jjones@gmail.com", 
-            phone_number="800-555-1212",
-            products=[]
-        )
-        product = self._create_product()
-        product.create()
-        association = Association(wholesale_price=999)
-        association.supplier_id = supplier.id
-        association.product_id = product.id
-        supplier.products.append(association)
-        return supplier
-
+    
     def _create_suppliers(self, count):
-        """ Factory method to create suppliers in bulk """
+        """ Method to create suppliers in bulk """
         suppliers = []
         for _ in range(count):
             test_supplier = self._create_supplier()
             suppliers.append(test_supplier)
         return suppliers
-    
+
     def _create_product(self): 
         return Product(
             name="Macbook"
         )
+
+    def _create_association(self): 
+         supplier = self._create_supplier()
+        #  supplier.create()
+         product = self._create_product()
+         product.create()
+         association = Association(wholesale_price=999)
+         association.supplier_id = supplier.id
+         association.product_id = product.id
+         association.product = product
+         supplier.products.append(association)
+         supplier.save()
+         return supplier
     
     ######################################################################
     #  S U P P L I E R   T E S T   C A S E S
@@ -338,7 +335,7 @@ class TestSupplier(unittest.TestCase):
         product = Product()
         product.deserialize(data)
         self.assertNotEqual(product, None)
-        self.assertEqual(product.id, None)
+        self.assertEqual(product.id, 1)
         self.assertEqual(product.name, "Macbook")
 
 
@@ -349,7 +346,7 @@ class TestSupplier(unittest.TestCase):
     def test_create_asociation(self):
         """ Create a Supplier with a Product and assert that it exists """
         supplier = self._create_association()
-        supplier.create()
+        # supplier.create()
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, 1)
         self.assertEqual(supplier.name, "Jim Jones")
@@ -364,8 +361,6 @@ class TestSupplier(unittest.TestCase):
     def test_update_association(self):
         """ Create a Supplier-Product association, then update it's wholesale price """
         supplier = self._create_association()
-        logging.debug(supplier)
-        supplier.create()
         logging.debug(supplier)
         self.assertEqual(supplier.id, 1)
         # Change it an save it
@@ -384,18 +379,77 @@ class TestSupplier(unittest.TestCase):
     def test_delete_association(self):
         """ Delete an Association """
         supplier = self._create_association()
-        supplier.create()
+        # supplier.create()
         self.assertEqual(len(Association.all()), 1)
         # delete the pet and make sure it isn't in the database
         supplier.products[0].delete()
         self.assertEqual(len(Association.all()), 0)
 
+    def test_delete_association2(self):
+        """ Delete an Association 2 """
+        supplier = self._create_association()
+        # supplier.create()
+        product = self._create_product()
+        product.create()
+        association2 = Association(wholesale_price=1000)
+        association2.supplier_id = supplier.id
+        association2.product_id = product.id
+        supplier.products.append(association2)
+        self.assertEqual(len(Association.all()), 2)
+        # delete the pet and make sure it isn't in the database
+        supplier.products[0].delete()
+        self.assertEqual(len(Association.all()), 1)
+
+    def test_serialize_an_association(self):
+        """ Test serialization of a Association """
+        association = Association(
+            supplier_id=20,
+            product_id=10,
+            wholesale_price=99
+        )
+        data = association.serialize()
+        logging.debug(data)
+        self.assertNotEqual(data, None)
+        self.assertIn("supplier_id", data)
+        self.assertEqual(data["supplier_id"], association.supplier_id)
+        self.assertIn("product_id", data)
+        self.assertEqual(data["product_id"], association.product_id)
+        self.assertIn("wholesale_price", data)
+        self.assertEqual(data["wholesale_price"], association.wholesale_price)
+
+    def test_deserialize_an_association(self):
+        """ Test deserialization of a association """
+        data = {
+            "supplier_id": 1,
+            "product_id": 1,
+            "wholesale_price": 33
+        }
+        association = Association()
+        association.deserialize(data)
+
+        self.assertEqual(association.supplier_id, 1)
+        self.assertEqual(association.product_id, 1)
+        self.assertEqual(association.wholesale_price, 33)
+
+    def test_deserialize_association_missing_data(self):
+        """ Test deserialization of a supplier """
+        data = {
+            "supplier_id": 1,
+            "product_id": 1
+        }
+        association = Association()
+        self.assertRaises(DataValidationError, association.deserialize, data)
+
+    def test_deserialize_association_bad_data(self):
+        """ Test deserialization of bad data """
+        data = "this is not a dictionary"
+        association = Association()
+        self.assertRaises(DataValidationError, association.deserialize, data)
+
     def test_multiple_associations(self):
         """ Create two associations, list them out, and confirm both were created """    
         supplier = self._create_association()     
-        supplier.create()
         supplier2 = self._create_association()     
-        supplier2.create()
         logging.debug(supplier)
         # make sure they got saved
         self.assertEqual(len(Association.all()), 2)
