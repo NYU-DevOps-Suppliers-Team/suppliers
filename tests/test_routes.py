@@ -97,6 +97,18 @@ class TestSuppplierServer(TestCase):
         supplier.products.append(association)
         return supplier
 
+    def _create_association_with_price(self, price): 
+        supplier = self._create_supplier()
+        product = self._create_product()
+        product.create()
+        association = Association(wholesale_price=price)
+        association.product = product
+        supplier.products.append(association)
+        supplier.save()
+        
+        return association
+
+
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -107,6 +119,10 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         # data = resp.get_json()
         # self.assertEqual(data["name"], "Supplier REST API Service")
+    
+    ######################################################################
+    #  SUPPLIER ROUTE TEST CASES
+    ######################################################################
 
     def test_create_supplier(self):
         """ Create a new Supplier """
@@ -217,6 +233,7 @@ class TestSuppplierServer(TestCase):
 ######################################################################
 #  PRODUCT ROUTE TEST CASES
 ######################################################################
+
     def test_create_product(self):
         """ Create a new Product """
         test_product = self._create_product()
@@ -368,3 +385,30 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_association = resp.get_json()
         self.assertEqual(updated_association["wholesale_price"], 100)
+    
+    def test_get_association(self):
+        """ Get a single association """
+
+        association1 = self._create_association_with_price(359)
+        resp = self.app.get(
+            "/suppliers/{}/products/{}".format(association1.supplier_id,association1.product_id), content_type="application/json"
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        print(data)
+        self.assertEqual(data["wholesale_price"], association1.wholesale_price)
+        self.assertEqual(data["supplier_id"], association1.supplier_id)
+        self.assertEqual(data["product_id"], association1.product_id)
+        
+
+        association2 = self._create_association_with_price(2010)
+        resp = self.app.get(
+            "/suppliers/{}/products/{}".format(association2.supplier_id,association1.product_id), content_type="application/json"
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
+
+
