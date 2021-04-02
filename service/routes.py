@@ -111,6 +111,11 @@ def index():
         status.HTTP_200_OK,
     )
 
+########################################################################################################################################## 
+# SUPPLIER ROUTES
+########################################################################################################################################### 
+
+
 ######################################################################
 # CREATE A NEW SUPPLIER
 ######################################################################
@@ -198,6 +203,10 @@ def update_suppliers(supplier_id):
     supplier.save()
     return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
 
+########################################################################################################################################## 
+# PRODUCT ROUTES
+########################################################################################################################################### 
+
 ######################################################################
 # ADD A PRODUCT AKA CREATE
 ######################################################################
@@ -284,6 +293,10 @@ def list_products():
     results = [product.serialize() for product in products]
     return make_response(jsonify(results), status.HTTP_200_OK)
 
+########################################################################################################################################## 
+# ASSOCIATION ROUTES
+########################################################################################################################################### 
+
 ######################################################################
 # CREATE A NEW ASSOCIATION
 ######################################################################
@@ -310,6 +323,24 @@ def create_association(supplier_id, product_id):
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+
+#####################################################################    
+# READ A ASSOCIATION
+######################################################################
+@app.route("/suppliers/<int:supplier_id>/products/<int:product_id>", methods=["GET"])
+def get_association(supplier_id, product_id):
+    """
+    Read a single association
+    This endpoint will return a association based on the productId and the supplierId
+    """
+    app.logger.info("Request for association with id: %s", supplier_id, product_id)
+
+    association = Association.find(supplier_id, product_id)
+
+    if not association:
+        raise NotFound("association with supplier id '{}' and with product id '{}' was not found.".format(supplier_id, product_id))
+    return make_response(jsonify(association.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
