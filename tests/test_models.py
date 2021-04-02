@@ -440,7 +440,7 @@ class TestSupplier(unittest.TestCase):
         association = Association()
         self.assertRaises(DataValidationError, association.deserialize, data)
 
-    def test_deserialize_asoociation_bad_data(self):
+    def test_deserialize_association_bad_data(self):
         """ Test deserialization of bad data """
         data = "this is not a dictionary"
         association = Association()

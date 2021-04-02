@@ -89,7 +89,6 @@ class TestSuppplierServer(TestCase):
 
     def _create_association(self): 
         supplier = self._create_supplier()
-        # supplier.create()
         product = self._create_product()
         product.create()
         association = Association(wholesale_price=999)
@@ -97,7 +96,7 @@ class TestSuppplierServer(TestCase):
         association.product_id = product.id
         supplier.products.append(association)
         return supplier
-        
+
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
