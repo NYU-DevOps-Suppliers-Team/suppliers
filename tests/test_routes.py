@@ -333,3 +333,38 @@ class TestSuppplierServer(TestCase):
         self.assertEqual(data["wholesale_price"], supplier.products[0].wholesale_price)
 
 
+    def test_update_association(self):
+        """ Create a supplier/product association to update """
+
+        # create the assciation
+        supplier = self._create_supplier()
+        supplier.create()
+        product = self._create_product()
+        product.create()
+
+        data = dict(
+            supplier_id=supplier.id,
+            product_id=product.id,
+            wholesale_price=24
+        )
+
+        resp = self.app.post(
+            "/suppliers/{}/products/{}".format(supplier.id, product.id),
+            json=data,
+            content_type="application/json"
+        )
+
+        logging.debug(resp)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        #update the wholesale price
+        new_association = resp.get_json()
+        new_association["wholesale_price"] = 100
+        resp = self.app.put(
+            "/suppliers/{}/products/{}".format(supplier.id, product.id),
+            json=new_association,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_association = resp.get_json()
+        self.assertEqual(updated_association["wholesale_price"], 100)
