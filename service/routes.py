@@ -343,6 +343,27 @@ def get_association(supplier_id, product_id):
 
 
 ######################################################################
+# UPDATE WHOLESALE PRICE ON AN EXISTING ASSOCIATION
+######################################################################
+@app.route('/suppliers/<int:supplier_id>/products/<int:product_id>', methods=["PUT"])
+def update_association(supplier_id, product_id):
+    """
+    Update the wholesale price on an association between a supplier and a product
+    This endpoint will update an association based the data in the body that is posted
+    """
+    app.logger.info("Request to update an Association")
+    check_content_type("application/json")
+    
+    supplier = Supplier.find_or_404(supplier_id)
+    product = Product.find_or_404(product_id)
+    association = Association()
+    association.deserialize(request.get_json())
+    supplier.products.wholesale_price = association.wholesale_price
+    supplier.save()
+
+    return make_response(jsonify(association.serialize()), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
