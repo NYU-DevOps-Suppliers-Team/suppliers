@@ -364,6 +364,31 @@ def update_association(supplier_id, product_id):
     return make_response(jsonify(association.serialize()), status.HTTP_200_OK)
 
 ######################################################################
+# LIST ALL ASSOCIATIONS
+######################################################################
+@app.route("/associations", methods=["GET"])
+def list_associations():
+    """ Returns all of the associations """
+    app.logger.info("Request for association list")
+    associations = []
+    
+    associations = Association.all()
+
+    results = [association.serialize() for association in associations]
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
+# LIST ALL SUPPLIERS PRODUCTS
+######################################################################
+@app.route("/suppliers/<int:supplier_id>/products", methods=["GET"])
+def list_supplier_products(supplier_id):
+    """ Returns all of the products given a supplier """
+    supplier = Supplier.find_or_404(supplier_id)
+    result = supplier.serialize()
+
+    return make_response(jsonify(result["products"]), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 

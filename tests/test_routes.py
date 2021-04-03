@@ -108,6 +108,12 @@ class TestSuppplierServer(TestCase):
         
         return association
 
+    def _create_associations(self, count):
+        """ Factory method to create products in bulk """
+        for _ in range(count):
+            test_association = self._create_association_with_price(count + 100)
+
+
 
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
@@ -409,6 +415,39 @@ class TestSuppplierServer(TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_association_list(self):
+        """ Get a list of associations """
+        self._create_associations(5)
+        resp = self.app.get("/associations")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
+
+    def test_get_list_supplier_products(self):
+        """ Get a list of all products given a supplier """
+        supplier = self._create_supplier()
+        product = self._create_product()
+        product.create()
+        product2 = self._create_product()
+        product2.create()
+
+        association = Association(wholesale_price=1000)
+        association.product = product
+        supplier.products.append(association)
+
+        association2 = Association(wholesale_price=500)
+        association2.product = product2
+        supplier.products.append(association2)
+        supplier.save()
+
+
+        resp = self.app.get(
+            "/suppliers/{}/products".format(association.supplier_id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        print(data)
+        self.assertEqual(len(data), 2)
 
 
 
