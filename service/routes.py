@@ -389,6 +389,27 @@ def list_supplier_products(supplier_id):
     return make_response(jsonify(result["products"]), status.HTTP_200_OK)
 
 ######################################################################
+# DELETE AN ASSOCIATION
+######################################################################
+@app.route('/suppliers/<int:supplier_id>/products/<int:product_id>', methods=["DELETE"])
+def delete_association(supplier_id, product_id):
+    """
+    Delete an association between a supplier and a product
+    This endpoint will delete an association based the data in the body that is posted
+    """
+    app.logger.info("Request to delete an Association")
+    check_content_type("application/json")
+    
+    association = Association.find(supplier_id, product_id)
+
+    if not association:
+        raise NotFound("association with supplier id '{}' and with product id '{}' was not found.".format(supplier_id, product_id))
+    else:
+        association.delete()
+
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
