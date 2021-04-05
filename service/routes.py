@@ -145,8 +145,14 @@ def list_suppliers():
     app.logger.info("Request for supplier list")
     suppliers = []
     name = request.args.get("name")
+    email = request.args.get("email")
+    address = request.args.get("address")
     if name:
         suppliers = Supplier.find_by_name(name)
+    elif email:
+        suppliers = Supplier.find_by_email(email)
+    elif address:
+        suppliers = Supplier.find_by_address(address)           
     else:
         suppliers = Supplier.all()
 

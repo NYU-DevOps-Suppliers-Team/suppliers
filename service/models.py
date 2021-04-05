@@ -201,6 +201,26 @@ class Supplier(db.Model):
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
 
+    @classmethod
+    def find_by_email(cls, email):
+        """Returns all Suppliers with the given email
+
+        Args:
+            email (string): the email of the Suppliers you want to match
+        """
+        logger.info("Processing email query for %s ...", email)
+        return cls.query.filter(cls.email == email)
+        
+    @classmethod
+    def find_by_address(cls, address):
+        """Returns all Suppliers with the given address
+
+        Args:
+            address (string): the address of the Suppliers you want to match
+        """
+        logger.info("Processing address query for %s ...", address)
+        return cls.query.filter(cls.address == address)        
+
 ######################################################################
 #  P R O D U C T  M O D E L
 ######################################################################
