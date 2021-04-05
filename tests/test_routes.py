@@ -451,3 +451,18 @@ class TestSuppplierServer(TestCase):
 
 
 
+    def test_delete_association(self):
+        """ Delete an association """
+
+        association = self._create_association_with_price(999)
+        resp = self.app.delete(
+            "/suppliers/{}/products/{}".format(association.supplier_id,association.product_id), content_type="application/json"
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get(
+            "/suppliers/{}/products/{}".format(association.supplier_id,association.product_id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
