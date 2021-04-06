@@ -230,6 +230,58 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(suppliers[0].address, "Suplier address 2")
         self.assertEqual(suppliers[0].phone_number, None)
 
+
+    def test_find_by_email(self):
+        """ Find a supplier by Email """
+        Supplier(
+            name="Supplier 1",
+            email="supplier1@email.com",
+            address="Suplier address 1",
+            phone_number="312 478 9890"
+        ).create()
+
+        Supplier(
+            name="Supplier 2",
+            email="supplier2@email.com",
+            address="Suplier address 2"
+        ).create()
+        
+        suppliers = Supplier.find_by_email("supplier1@email.com")
+        self.assertEqual(suppliers[0].name, "Supplier 1")
+        self.assertEqual(suppliers[0].address, "Suplier address 1")
+        self.assertEqual(suppliers[0].phone_number, "312 478 9890")
+
+        suppliers = Supplier.find_by_email("supplier2@email.com")
+        self.assertEqual(suppliers[0].name, "Supplier 2")
+        self.assertEqual(suppliers[0].address, "Suplier address 2")
+        self.assertEqual(suppliers[0].phone_number, None)
+
+    def test_find_by_address(self):
+        """ Find a supplier by Address """
+        Supplier(
+            name="Supplier 1",
+            email="supplier1@email.com",
+            address="Suplier address 1",
+            phone_number="312 478 9890"
+        ).create()
+
+        Supplier(
+            name="Supplier 2",
+            email="supplier2@email.com",
+            address="Suplier address 2"
+        ).create()
+        
+        suppliers = Supplier.find_by_address("Suplier address 1")
+        self.assertEqual(suppliers[0].name, "Supplier 1")
+        self.assertEqual(suppliers[0].email, "supplier1@email.com")
+        self.assertEqual(suppliers[0].phone_number, "312 478 9890")
+
+        suppliers = Supplier.find_by_address("Suplier address 2")
+        self.assertEqual(suppliers[0].name, "Supplier 2")
+        self.assertEqual(suppliers[0].email, "supplier2@email.com")
+        self.assertEqual(suppliers[0].phone_number, None)
+
+
     def test_find_or_404_found(self):
         """ Find or return 404 found """
         suppliers = self._create_suppliers(3)

@@ -9,6 +9,7 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+from urllib.parse import quote_plus
 from flask_api import status  # HTTP Status Codes
 from service.models import db, Supplier, Product, Association
 from service.routes import app, init_db 
@@ -226,6 +227,50 @@ class TestSuppplierServer(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 5)
 
+    def test_query_supplier_list_by_name(self):
+        """ Query Suppliers by name """
+        suppliers = self._create_suppliers(5)
+        test_name = suppliers[0].name
+        name_suppliers = [supplier for supplier in suppliers if supplier.name == test_name]
+        resp = self.app.get(
+            "/suppliers", query_string="name={}".format(quote_plus(test_name))
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(name_suppliers))
+        # check the data just to be sure
+        for supplier in data:
+            self.assertEqual(supplier["name"], test_name)
+
+    def test_query_supplier_list_by_email(self):
+        """ Query Suppliers by email """
+        suppliers = self._create_suppliers(5)
+        test_email = suppliers[0].email
+        email_suppliers = [supplier for supplier in suppliers if supplier.email == test_email]
+        resp = self.app.get(
+            "/suppliers", query_string="email={}".format(quote_plus(test_email))
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(email_suppliers))
+        # check the data just to be sure
+        for supplier in data:
+            self.assertEqual(supplier["email"], test_email)
+    
+    def test_query_supplier_list_by_address(self):
+        """ Query Suppliers by address """
+        suppliers = self._create_suppliers(5)
+        test_address = suppliers[0].address
+        address_suppliers = [supplier for supplier in suppliers if supplier.address == test_address]
+        resp = self.app.get(
+            "/suppliers", query_string="address={}".format(quote_plus(test_address))
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(address_suppliers))
+        # check the data just to be sure
+        for supplier in data:
+            self.assertEqual(supplier["address"], test_address)
 
     def test_content_type_error(self):
         """ Create a new Supplier """
