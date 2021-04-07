@@ -44,7 +44,7 @@ class TestSupplier(unittest.TestCase):
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
             phone_number="800-555-1212",
-            available= True, 
+            available=True, 
             products=[]
         )
     
@@ -93,7 +93,7 @@ class TestSupplier(unittest.TestCase):
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
-            available= True 
+            available=True 
         )    
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, None)
@@ -219,7 +219,7 @@ class TestSupplier(unittest.TestCase):
             name="Supplier 1",
             email="supplier1@email.com",
             address="Supplier address 1",
-            available= True, 
+            available=True, 
             phone_number="312 478 9890"
         ).create()
 
@@ -227,7 +227,7 @@ class TestSupplier(unittest.TestCase):
             name="Supplier 2",
             email="supplier2@email.com",
             address="Supplier address 2", 
-            available= False
+            available=False
         ).create()
         
         suppliers = Supplier.find_by_name("Supplier 1")
