@@ -48,6 +48,7 @@ class TestSuppplierServer(TestCase):
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
             phone_number="800-555-1212",
+            available=True, 
             products=[]
         )
 
@@ -280,6 +281,28 @@ class TestSuppplierServer(TestCase):
             "/suppliers", json=test_supplier.serialize(), content_type="badcontent"
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_mark_supplier_availability(self):
+        """ Mark an available Supplier (action test) """
+        supplier = self._create_supplier()
+        supplier.create()
+        
+        resp = self.app.get('/suppliers/{}'.format(supplier.id), content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        logging.debug('data = %s', data)
+        #Ensure that an available flag is true prior to action
+        self.assertEqual(data["available"], True)
+
+        resp = self.app.put('/suppliers/{}/unavailable'.format(supplier.id), content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        resp = self.app.get('/suppliers/{}'.format(supplier.id), content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        logging.debug('data = %s', data)
+        #Ensure that an available flag is set to false after action
+        self.assertEqual(data["available"], False)
 
 ######################################################################
 #  PRODUCT ROUTE TEST CASES

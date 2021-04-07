@@ -44,6 +44,7 @@ class TestSupplier(unittest.TestCase):
             address="123 Main Street, Anytown USA", 
             email="jjones@gmail.com", 
             phone_number="800-555-1212",
+            available= True, 
             products=[]
         )
     
@@ -84,16 +85,19 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
+        self.assertEqual(supplier.available, True) 
         self.assertEqual(supplier.products,[])
 
     #Test supplier without optional phone number 
         supplier = Supplier(
             name="Jim Jones",
             address="123 Main Street, Anytown USA", 
-            email="jjones@gmail.com"
+            email="jjones@gmail.com", 
+            available= True 
         )    
         self.assertTrue(supplier != None)
         self.assertEqual(supplier.id, None)
+        self.assertEqual(supplier.available, True)
         self.assertEqual(supplier.phone_number, None)  
 
     def test_add_a_supplier(self):
@@ -153,6 +157,8 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(data["address"], supplier.address)
         self.assertIn("email", data)
         self.assertEqual(data["email"], supplier.email)
+        self.assertIn("available", data)
+        self.assertEqual(data["available"], supplier.available)
         self.assertIn("phone_number", data)
         self.assertEqual(data["phone_number"], supplier.phone_number)
 
@@ -164,6 +170,7 @@ class TestSupplier(unittest.TestCase):
             "address": "123 Main Street, Anytown USA", 
             "email": "jjones@gmail.com",
             "phone_number": "800-555-1212",
+            "available": True, 
             "products": []
         }
         supplier = Supplier()
@@ -174,6 +181,7 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.address, "123 Main Street, Anytown USA")
         self.assertEqual(supplier.email, "jjones@gmail.com")
         self.assertEqual(supplier.phone_number, "800-555-1212")
+        self.assertEqual(supplier.available, True)
 
     def test_deserialize_missing_data(self):
         """ Test deserialization of a supplier """
@@ -210,24 +218,28 @@ class TestSupplier(unittest.TestCase):
         Supplier(
             name="Supplier 1",
             email="supplier1@email.com",
-            address="Suplier address 1",
+            address="Supplier address 1",
+            available= True, 
             phone_number="312 478 9890"
         ).create()
 
         Supplier(
             name="Supplier 2",
             email="supplier2@email.com",
-            address="Suplier address 2"
+            address="Supplier address 2", 
+            available= False
         ).create()
         
         suppliers = Supplier.find_by_name("Supplier 1")
         self.assertEqual(suppliers[0].email, "supplier1@email.com")
-        self.assertEqual(suppliers[0].address, "Suplier address 1")
+        self.assertEqual(suppliers[0].address, "Supplier address 1")
+        self.assertEqual(suppliers[0].available, True)
         self.assertEqual(suppliers[0].phone_number, "312 478 9890")
 
         suppliers = Supplier.find_by_name("Supplier 2")
         self.assertEqual(suppliers[0].email, "supplier2@email.com")
-        self.assertEqual(suppliers[0].address, "Suplier address 2")
+        self.assertEqual(suppliers[0].address, "Supplier address 2")
+        self.assertEqual(suppliers[0].available, False)
         self.assertEqual(suppliers[0].phone_number, None)
 
 
@@ -237,23 +249,27 @@ class TestSupplier(unittest.TestCase):
             name="Supplier 1",
             email="supplier1@email.com",
             address="Suplier address 1",
+            available=True, 
             phone_number="312 478 9890"
         ).create()
 
         Supplier(
             name="Supplier 2",
             email="supplier2@email.com",
-            address="Suplier address 2"
+            address="Suplier address 2", 
+            available=False 
         ).create()
         
         suppliers = Supplier.find_by_email("supplier1@email.com")
         self.assertEqual(suppliers[0].name, "Supplier 1")
         self.assertEqual(suppliers[0].address, "Suplier address 1")
+        self.assertEqual(suppliers[0].available, True)
         self.assertEqual(suppliers[0].phone_number, "312 478 9890")
 
         suppliers = Supplier.find_by_email("supplier2@email.com")
         self.assertEqual(suppliers[0].name, "Supplier 2")
         self.assertEqual(suppliers[0].address, "Suplier address 2")
+        self.assertEqual(suppliers[0].available, False)
         self.assertEqual(suppliers[0].phone_number, None)
 
     def test_find_by_address(self):
@@ -262,23 +278,27 @@ class TestSupplier(unittest.TestCase):
             name="Supplier 1",
             email="supplier1@email.com",
             address="Suplier address 1",
+            available=True,
             phone_number="312 478 9890"
         ).create()
 
         Supplier(
             name="Supplier 2",
             email="supplier2@email.com",
-            address="Suplier address 2"
+            address="Suplier address 2", 
+            available=False
         ).create()
         
         suppliers = Supplier.find_by_address("Suplier address 1")
         self.assertEqual(suppliers[0].name, "Supplier 1")
         self.assertEqual(suppliers[0].email, "supplier1@email.com")
+        self.assertEqual(suppliers[0].available, True)
         self.assertEqual(suppliers[0].phone_number, "312 478 9890")
 
         suppliers = Supplier.find_by_address("Suplier address 2")
         self.assertEqual(suppliers[0].name, "Supplier 2")
         self.assertEqual(suppliers[0].email, "supplier2@email.com")
+        self.assertEqual(suppliers[0].available, False)
         self.assertEqual(suppliers[0].phone_number, None)
 
 
@@ -294,6 +314,7 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(supplier.name, suppliers[1].name)
         self.assertEqual(supplier.email, suppliers[1].email)
         self.assertEqual(supplier.address, suppliers[1].address)
+        self.assertEqual(supplier.available, suppliers[1].available)
         self.assertEqual(supplier.phone_number, suppliers[1].phone_number)
 
     def test_find_or_404_not_found(self):

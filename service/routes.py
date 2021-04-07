@@ -209,6 +209,19 @@ def update_suppliers(supplier_id):
     supplier.save()
     return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
 
+######################################################################
+# MAKE A SUPPLIER UNAVAILABLE
+######################################################################
+@app.route('/suppliers/<int:supplier_id>/unavailable', methods=['PUT'])
+def unavailable_supplier(supplier_id):
+    """ Marking a supplier unavailable """
+    supplier = Supplier.find(supplier_id)
+    if not supplier:
+        abort(status.HTTP_404_NOT_FOUND, "Supplier with id '{}' was not found.".format(supplier_id)) 
+    supplier.available=False 
+    supplier.save()
+    return make_response(jsonify(supplier.serialize()), status.HTTP_200_OK)
+
 ########################################################################################################################################## 
 # PRODUCT ROUTES
 ########################################################################################################################################### 
