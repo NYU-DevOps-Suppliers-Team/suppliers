@@ -95,6 +95,7 @@ class Supplier(db.Model):
     email = db.Column(db.String(63), nullable=False)
     address = db.Column(db.String(256), nullable=False)
     phone_number = db.Column(db.String(20))
+    available = db.Column(db.Boolean(), nullable=False, default=True)
     products = db.relationship("Association", back_populates="supplier")
 
     def __repr__(self):
@@ -129,6 +130,7 @@ class Supplier(db.Model):
                 "address": self.address,
                 "email": self.email,
                 "phone_number": self.phone_number,
+                "available": self.available, 
                 "products": []
         }
         for product in self.products:
@@ -147,6 +149,7 @@ class Supplier(db.Model):
             self.address = data["address"]
             self.email = data["email"]
             self.phone_number = data.get("phone_number") 
+            self.available = data["available"]
             # handle inner list of product listings
             products = data.get("products")
             for json_products in products:
