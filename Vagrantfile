@@ -68,6 +68,38 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"
   end
 
+  # Copy your IBM Cloud API Key if you have one
+  if File.exists?(File.expand_path("~/.bluemix/apiKey.json"))
+    config.vm.provision "file", source: "~/.bluemix/apiKey.json", destination: "~/.bluemix/apiKey.json"
+  end
+
+  ######################################################################
+  # Setup a Bluemix and Kubernetes environment
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "\n************************************"
+    echo " Installing IBM Cloud CLI..."
+    echo "************************************\n"
+    # Install IBM Cloud CLI as Vagrant user
+    sudo -H -u vagrant sh -c 'curl -sL http://ibm.biz/idt-installer | bash'
+    sudo -H -u vagrant sh -c "echo 'source <(kubectl completion bash)' >> ~/.bashrc"
+    # sudo -H -u vagrant sh -c "ibmcloud cf install --version 6.46.1"
+    sudo -H -u vagrant sh -c "ibmcloud cf install"
+    sudo -H -u vagrant sh -c "echo alias ic=/usr/local/bin/ibmcloud >> ~/.bash_aliases"
+    echo "\n************************************"
+    echo "If you have an IBM Cloud API key in ~/.bluemix/apiKey.json"
+    echo "You can login with the following command:"
+    echo "\n"
+    echo "ibmcloud login -a https://cloud.ibm.com --apikey @~/.bluemix/apiKey.json -r us-south"
+    echo "ibmcloud target --cf -o bf2212@stern.nyu.edu -s dev"
+    echo "\n************************************"
+    # Show the GUI URL for Couch DB
+    echo "\n"
+    echo "CouchDB Admin GUI can be found at:\n"
+    echo "http://127.0.0.1:5984/_utils"    
+  SHELL
+
+
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
