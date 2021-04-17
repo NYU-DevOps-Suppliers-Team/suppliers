@@ -148,14 +148,23 @@ def list_suppliers():
     name = request.args.get("name")
     email = request.args.get("email")
     address = request.args.get("address")
+    available = request.args.get("available")
+    sort_by = request.args.get('sort_by')
+
+
     if name:
         suppliers = Supplier.find_by_name(name)
     elif email:
         suppliers = Supplier.find_by_email(email)
     elif address:
-        suppliers = Supplier.find_by_address(address)           
+        suppliers = Supplier.find_by_address(address)    
+    elif available:
+        suppliers = Supplier.find_by_available(available)             
     else:
-        suppliers = Supplier.all()
+        if sort_by is not None:
+            suppliers = Supplier.sort_by(sort_by)
+        else:
+            suppliers = Supplier.all()
 
     results = [supplier.serialize() for supplier in suppliers]
     return make_response(jsonify(results), status.HTTP_200_OK)

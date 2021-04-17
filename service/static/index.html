@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="static/css/blue_bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <script type="text/javascript" src = "static/js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="static/js/rest_api.js"></script>
   </head>
@@ -32,8 +34,8 @@
                   <input type="text" class="form-control" id="supplier_id" placeholder="Enter ID of Supplier">
                 </div>
                 <div class="col-sm-4">
-                  <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
-                  <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+                  <button type="submit" class="btn btn-primary" id="retrieve-btn"><i class="bi bi-arrow-bar-down"></i>Retrieve</button>
+                  <button type="submit" class="btn btn-danger" id="delete-btn"><i class="bi bi-trash"></i>Delete</button>
                 </div>
               </div>
             </div> <!-- form div -->
@@ -58,42 +60,71 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="control-label col-sm-2" for="supplier_phone_number">Phone_number:</label>
+                <label class="control-label col-sm-2" for="supplier_phone_number">Phone number:</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="supplier_phone_number" placeholder="Enter phone_number for Supplier">
+                  <input type="text" class="form-control" id="supplier_phone_number" placeholder="Enter phone number for Supplier">
                 </div>
               </div>
-              <div class="form-group">
-                <label class="control-label col-sm-2" for="supplier_available">Available:</label>
-                <div class="col-sm-10">
-                  <select class="form-control" id="supplier_available">
-                      <option value="true" selected>True</option>
-                      <option value="false">False</option>
-                  </select>
-                </div>
+              <div class="form-group col-sm-2"></div>
+              <div class="form-group radio-group col-sm-10 container-radio">
+                
+                  <input class="form-check-input" type="radio" value="true" name="supplier_available" id="supplier_available" checked>
+                  <label class="form-check-label" for="supplier_available">
+                    Available
+                  </label>
+                  <input class="form-check-input" type="radio" value="false" name="supplier_available" id="supplier_unavailable">
+                  <label class="form-check-label" for="supplier_unavailable">
+                    Unavailable
+                  </label>
               </div>
+
               <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                  <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
-                  <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
-                  <button type="submit" class="btn btn-success" id="create-btn">Create</button>
-                  <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+                  <button type="submit" class="btn btn-primary" id="list-btn" sort="id"><i class="bi bi-card-list"></i>List all suppliers</button>
+                  <button type="submit" class="btn btn-primary" id="search-btn"><i class="bi bi-search"></i>Search</button>
+                  <button type="submit" class="btn btn-primary" id="clear-btn"><i class="bi bi-square"></i>Clear</button>
+                  <button type="submit" class="btn btn-success" id="create-btn"><i class="bi bi-plus-circle"></i>Create</button>
+                  <button type="submit" class="btn btn-warning" id="update-btn"><i class="bi bi-pencil-square"></i>Update</button>
                 </div>
               </div>
           </div> <!-- form div -->
         </div>
 
         <!-- Search Results -->
-        <div class="table-responsive col-md-12" id="search_results">
-          <table class="table-striped">
+        <div class="table-responsive table-results col-md-12" id="search_results">
+          <table class="table-striped" cellpadding="10">
             <thead>
             <tr>
-                <th class="col-md-1">ID</th>
-                <th class="col-md-4">Name</th>
-                <th class="col-md-4">Category</th>
-                <th class="col-md-3">Available</th>
+                <th valign="center" style="width:10%">
+                  <div class="column-title">
+                    <i class="bi sort-icon bi-sort-numeric-down" id="list-by-id-btn" sort="id"></i>
+                    <span>ID</span>
+                  </div>
+                </th>
+                <th valign="center" style="width:20%">
+                  <div class="column-title">
+                    <i class="bi sort-icon bi-sort-alpha-down" id="list-by-name-btn" sort="name"></i>
+                    <span>Name</span>
+                  </div>
+                </th>
+                <th valign="center" style="width:30%">
+                  <div class="column-title">
+                    <i class="bi sort-icon bi-sort-alpha-down" id="list-by-email-btn" sort="email"></i>
+                    <span>Email</span>
+                  </div>
+                </th>
+                <th valign="center" style="width:20%">
+                  <div class="column-title">
+                    <i class="bi sort-icon bi-sort-alpha-down" id="list-by-address-btn" sort="address"></i>
+                    <span>Address</span>
+                  </div>
+                </th>
+                <th valign="center" style="width:30%">Phone</th>
+                <th valign="center" style="width:10%">Available</th>
             </tr>
             </thead>
+            <tbody id="table-content">
+            </tbody>
           </table>
         </div>
 

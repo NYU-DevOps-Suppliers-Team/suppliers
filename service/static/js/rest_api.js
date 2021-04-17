@@ -6,21 +6,21 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#supplier_id").val(res._id);
+        $("#supplier_id").val(res.id);
         $("#supplier_name").val(res.name);
         $("#supplier_email").val(res.email);
         $("#supplier_address").val(res.address);
         $("#supplier_phone_number").val(res.phone_number);
-        $("#supplier_category").val(res.category);
-        $("#supplier_available").val(res.available);
-        
+        res.available ? $("#supplier_available").prop("checked", true): $("#supplier_unavailable").prop("checked", true);  
     }
 
     /// Clears all form fields
     function clear_form_data() {
         $("#supplier_name").val("");
-        $("#supplier_category").val("");
-        $("#supplier_available").val("");
+        $("#supplier_email").val("");
+        $("#supplier_address").val("");
+        $("#supplier_phone_number").val("");
+        $("#supplier_available").prop("checked", true);
     }
 
     // Updates the flash message area
@@ -30,24 +30,29 @@ $(function () {
     }
 
     // ****************************************
-    // Create a Pet
+    // Create a Supplier
     // ****************************************
 
+    
     $("#create-btn").click(function () {
-
         var name = $("#supplier_name").val();
-        var category = $("#supplier_category").val();
-        var available = $("#supplier_available").val() == "true";
+        var email = $("#supplier_email").val();
+        var address = $("#supplier_address").val();
+        var phone_number = $("#supplier_phone_number").val() || null;
+        var available = $('input[name="supplier_available"]:checked').val() == "true";
 
         var data = {
             "name": name,
-            "category": category,
-            "available": available
+            "email": email,
+            "address": address,
+            "phone_number": phone_number,
+            "available": available,
+            "products" : []
         };
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/pets",
+            url: "/suppliers",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -64,25 +69,30 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update a Supplier
     // ****************************************
 
     $("#update-btn").click(function () {
 
         var supplier_id = $("#supplier_id").val();
         var name = $("#supplier_name").val();
-        var category = $("#supplier_category").val();
-        var available = $("#supplier_available").val() == "true";
+        var email = $("#supplier_email").val();
+        var address = $("#supplier_address").val();
+        var phone_number = $("#supplier_phone_number").val();
+        var available = $('input[name="supplier_available"]:checked').val() == "true";
 
         var data = {
             "name": name,
-            "category": category,
-            "available": available
+            "email": email,
+            "address": address,
+            "phone_number": phone_number,
+            "available": available,
+            "products" : []
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/pets/" + supplier_id,
+                url: "/suppliers/" + supplier_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -99,7 +109,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a SUPPLIER
     // ****************************************
 
     $("#retrieve-btn").click(function () {
@@ -108,13 +118,12 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets/" + supplier_id,
+            url: "/suppliers/" + supplier_id,
             contentType: "application/json",
             data: ''
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
             update_form_data(res)
             flash_message("Success")
         });
@@ -127,7 +136,7 @@ $(function () {
     });
 
     // ****************************************
-    // Delete a Pet
+    // Delete a Supplier
     // ****************************************
 
     $("#delete-btn").click(function () {
@@ -136,14 +145,14 @@ $(function () {
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/pets/" + supplier_id,
+            url: "/suppliers/" + supplier_id,
             contentType: "application/json",
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Pet has been Deleted!")
+            flash_message("Supplier has been Deleted!")
         });
 
         ajax.fail(function(res){
@@ -161,67 +170,70 @@ $(function () {
     });
 
     // ****************************************
-    // Search for a Pet
+    // Search for a Supplier
     // ****************************************
 
     $("#search-btn").click(function () {
 
         var name = $("#supplier_name").val();
-        var category = $("#supplier_category").val();
-        var available = $("#supplier_available").val() == "true";
+        var email = $("#supplier_email").val();
+        var address = $("#supplier_address").val();
+        var phone_number = $("#supplier_phone_number").val();
+        var available = $('input[name="supplier_available"]:checked').val() == "true";
 
         var queryString = ""
 
         if (name) {
             queryString += 'name=' + name
         }
-        if (category) {
-            if (queryString.length > 0) {
-                queryString += '&category=' + category
-            } else {
-                queryString += 'category=' + category
-            }
+        if (email) {
+            queryString += 'email=' + email
         }
-        if (available) {
-            if (queryString.length > 0) {
-                queryString += '&available=' + available
-            } else {
-                queryString += 'available=' + available
-            }
+        if (address) {
+            queryString += 'address=' + address
+        }
+        if (phone_number) {
+            queryString += 'phone_number=' + phone_number
+        }
+        if (queryString.length > 0) {
+            queryString += '&available=' + available
+        } else {
+            queryString += 'available=' + available
         }
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets?" + queryString,
+            url: "/suppliers?" + queryString,
             contentType: "application/json",
             data: ''
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
-            $("#search_results").empty();
-            $("#search_results").append('<table class="table-striped" cellpadding="10">');
-            var header = '<tr>'
-            header += '<th style="width:10%">ID</th>'
-            header += '<th style="width:40%">Name</th>'
-            header += '<th style="width:40%">Category</th>'
-            header += '<th style="width:10%">Available</th></tr>'
-            $("#search_results").append(header);
-            var firstPet = "";
+            var firstSupplier = "";
+            $("#table-content").empty();
             for(var i = 0; i < res.length; i++) {
-                var pet = res[i];
-                var row = "<tr><td>"+pet._id+"</td><td>"+pet.name+"</td><td>"+pet.category+"</td><td>"+pet.available+"</td></tr>";
-                $("#search_results").append(row);
+                var supplier = res[i];
+                var tr = '<tr>' ; 
+               // create a new Label Text
+                   tr += '<td>' + supplier.id  + '</td>';
+                   tr += '<td>' + supplier.name + '</td>';
+                   tr += '<td>' + supplier.email + '</td>';  
+                   tr += '<td>' + supplier.address + '</td>';  
+                   tr += '<td>' + supplier.phone_number + '</td>';
+                   tr += supplier.available ? '<td>' + supplier.available + '</td>': '<td class="unavailable">' + supplier.available + '</td>';  
+                   tr +='</tr>';
+                
+                $("#table-content").append(tr);
                 if (i == 0) {
-                    firstPet = pet;
+                    firstSupplier = supplier;
                 }
             }
 
             $("#search_results").append('</table>');
 
             // copy the first result to the form
-            if (firstPet != "") {
-                update_form_data(firstPet)
+            if (firstSupplier != "") {
+                update_form_data(firstSupplier)
             }
 
             flash_message("Success")
@@ -232,5 +244,69 @@ $(function () {
         });
 
     });
+
+
+    // ****************************************
+    // List for a Supplier
+    // ****************************************
+
+    function retrieveOrderedList(e) {
+
+        var sort_by = e ? $(e.target).attr('sort') : 'id';
+
+        var queryString = 'sort_by=' + sort_by;
+
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/suppliers?" + queryString,
+            contentType: "application/json",
+            data: ''
+        })
+        
+        ajax.done(function(res){
+
+            var firstSupplier = "";
+            $("#table-content").empty();
+            for(var i = 0; i < res.length; i++) {
+                var supplier = res[i];
+                var tr = '<tr>' ; 
+               // create a new Label Text
+                   tr += '<td>' + supplier.id  + '</td>';
+                   tr += '<td>' + supplier.name + '</td>';
+                   tr += '<td>' + supplier.email + '</td>';  
+                   tr += '<td>' + supplier.address + '</td>';  
+                   tr += '<td>' + supplier.phone_number + '</td>';
+                   tr += supplier.available ? '<td>' + supplier.available + '</td>': '<td class="unavailable">' + supplier.available + '</td>';  
+                   tr +='</tr>';
+                
+                $("#table-content").append(tr);
+                if (i == 0) {
+                    firstSupplier = supplier;
+                }
+            }
+
+            $("#search_results").append('</table>');
+
+            // copy the first result to the form
+            if (firstSupplier != "") {
+                update_form_data(firstSupplier)
+            }
+
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    }
+
+    $("#list-btn").click(retrieveOrderedList);
+    $("#list-by-name-btn").click(retrieveOrderedList);
+    $("#list-by-email-btn").click(retrieveOrderedList);
+    $("#list-by-address-btn").click(retrieveOrderedList);
+    $("#list-by-id-btn").click(retrieveOrderedList);
+
+    retrieveOrderedList()
 
 })
