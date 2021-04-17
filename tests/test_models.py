@@ -301,6 +301,60 @@ class TestSupplier(unittest.TestCase):
         self.assertEqual(suppliers[0].available, False)
         self.assertEqual(suppliers[0].phone_number, None)
 
+    def test_find_by_available(self):
+        """ Find a supplier by available """
+        Supplier(
+            name="Supplier 1",
+            email="supplier1@email.com",
+            address="Suplier address 1",
+            available=True, 
+            phone_number="312 478 9890"
+        ).create()
+
+        Supplier(
+            name="Supplier 2",
+            email="supplier2@email.com",
+            address="Suplier address 2", 
+            available=False 
+        ).create()
+        
+        suppliers = Supplier.find_by_available(True)
+        self.assertEqual(suppliers[0].name, "Supplier 1")
+        self.assertEqual(suppliers[0].address, "Suplier address 1")
+        self.assertEqual(suppliers[0].available, True)
+        self.assertEqual(suppliers[0].phone_number, "312 478 9890")
+
+        suppliers = Supplier.find_by_available(False)
+        self.assertEqual(suppliers[0].name, "Supplier 2")
+        self.assertEqual(suppliers[0].address, "Suplier address 2")
+        self.assertEqual(suppliers[0].available, False)
+        self.assertEqual(suppliers[0].phone_number, None)
+
+    def test_sort_by(self):
+        """ Find a supplier by available """
+        Supplier(
+            name="B Supplier 1",
+            email="asupplier1@email.com",
+            address="Suplier address 1",
+            available=True, 
+            phone_number="312 478 9890"
+        ).create()
+
+        Supplier(
+            name="A Supplier 2",
+            email="bsupplier2@email.com",
+            address="Suplier address 2", 
+            available=False 
+        ).create()
+        
+        suppliers = Supplier.sort_by("name")
+        self.assertEqual(suppliers[0].name, "A Supplier 2")
+        self.assertEqual(suppliers[1].name, "B Supplier 1")
+
+        suppliers = Supplier.sort_by("email")
+        self.assertEqual(suppliers[0].email, "asupplier1@email.com")
+        self.assertEqual(suppliers[1].email, "bsupplier2@email.com")
+
 
     def test_find_or_404_found(self):
         """ Find or return 404 found """

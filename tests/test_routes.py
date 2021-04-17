@@ -273,6 +273,21 @@ class TestSuppplierServer(TestCase):
         for supplier in data:
             self.assertEqual(supplier["address"], test_address)
 
+    def test_query_supplier_list_by_availability(self):
+        """ Query Suppliers by availability """
+        suppliers = self._create_suppliers(5)
+        test_available = suppliers[0].available
+        available_suppliers = [supplier for supplier in suppliers if supplier.available == test_available]
+        resp = self.app.get(
+            "/suppliers", query_string="available={}".format(quote_plus(str(test_available)))
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), len(available_suppliers))
+        # check the data just to be sure
+        for supplier in data:
+            self.assertEqual(supplier["available"], test_available)
+
     def test_content_type_error(self):
         """ Create a new Supplier """
         test_supplier = self._create_supplier()

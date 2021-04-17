@@ -5,6 +5,8 @@ All of the models are stored in this module
 """
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import asc, desc
+
 
 logger = logging.getLogger("flask.app")
 
@@ -222,7 +224,23 @@ class Supplier(db.Model):
             address (string): the address of the Suppliers you want to match
         """
         logger.info("Processing address query for %s ...", address)
-        return cls.query.filter(cls.address == address)        
+        return cls.query.filter(cls.address == address)       
+
+    @classmethod
+    def find_by_available(cls, available):
+        """Returns all Suppliers with the given available
+
+        Args:
+            available (string): the available of the Suppliers you want to match
+        """
+        logger.info("Processing available query for %s ...", available)
+        return cls.query.filter(cls.available == available)     
+
+    @classmethod
+    def sort_by(cls, sort_by):
+        """Returns all of the suppliers sorted by customer_id"""
+        logger.info("Processing all suppliers query sorted by %s ...", sort_by)
+        return cls.query.order_by(asc(sort_by))
 
 ######################################################################
 #  P R O D U C T  M O D E L
