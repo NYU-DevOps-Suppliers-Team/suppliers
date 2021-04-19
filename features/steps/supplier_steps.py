@@ -27,7 +27,7 @@ def step_impl(context):
     context.resp = requests.get(context.base_url + '/suppliers', headers=headers)
     expect(context.resp.status_code).to_equal(200)
     for supplier in context.resp.json():
-        context.resp = requests.delete(context.base_url + '/suppliers/' + str(supplier["_id"]), headers=headers)
+        context.resp = requests.delete(context.base_url + '/suppliers/' + str(supplier["id"]), headers=headers)
         expect(context.resp.status_code).to_equal(204)
     
     # load the database with new suppliers
@@ -38,7 +38,8 @@ def step_impl(context):
             "email": row['email'],
             "address": row['address'],
             "phone_number": row['phone_number'],
-            "available": row['available'] in ['True', 'true', '1']
+            "available": row['available'] in ['True', 'true', '1'],
+            "products": []
             }
         payload = json.dumps(data)
         context.resp = requests.post(create_url, data=payload, headers=headers)
