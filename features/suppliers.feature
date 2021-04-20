@@ -40,17 +40,21 @@ Scenario: Create a Supplier
 
 Scenario: List all suppliers
     When I visit the "Home Page"
-    And I press the "Search" button
+    And I press the "List" button
     Then I should see "Catherine" in the results
     And I should see "Evan" in the results
-    And I should see "Bea" in the result
+    And I should see "Bea" in the results
     And I should see "Sam" in the results
 
-Scenario: List all suppliers named Evan
+Scenario: Search a Supplier
     When I visit the "Home Page"
-    And I set the "Name" to "Evan"
+    And I press the "Clear" button
+    And I set the "name" to "Evan"
     And I press the "Search" button
-    Then I should see "Evan" in the results
+    Then I should see "Evan" in the "name" field
+    Then I should see "evan@titans.com" in the "email" field
+    Then I should see "14 Cashville Ln" in the "address" field
+    Then I should see "9991235575" in the "phone_number" field
 
 # Scenario: Update a Pet
 #     When I visit the "Home Page"
