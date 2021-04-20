@@ -5,8 +5,11 @@ Feature: The supplier service back-end
 
 Background:
     Given the following suppliers
-        | name       | email                   | address              | phone_number  | available |
-        | Catherine  | catherine@manatee.com   | 123 Baywatch Rd      | 9991235555    | True      |
+        | name       | email                   | address             | phone_number  | available |
+        | Catherine  | catherine@manatee.com   | 123 Baywatch Rd     | 9991235555    | True      |
+        | Evan       | evan@titans.com         | 14 Cashville Ln     | 9991235575    | False     |
+        | Bea        | bea@tapas.com           | 12 Spain Dr         | 9991235545    | True      |
+        | Sam        | sam@tb12.com            | 18 Foxboro Pl       | 9991235525    | True      |
        
 Scenario: The server is running
     When I visit the "Home Page"
@@ -35,20 +38,19 @@ Scenario: Create a Supplier
     Then I should see "123 Test Road" in the "Address" field
     Then I should see "8005551234" in the "phone_number" field
 
-# Scenario: List all pets
-#     When I visit the "Home Page"
-#     And I press the "Search" button
-#     Then I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should not see "leo" in the results
+Scenario: List all suppliers
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see "Catherine" in the results
+    And I should see "Evan" in the results
+    And I should see "Bea" in the result
+    And I should see "Sam" in the results
 
-# Scenario: List all dogs
-#     When I visit the "Home Page"
-#     And I set the "Category" to "dog"
-#     And I press the "Search" button
-#     Then I should see "fido" in the results
-#     And I should not see "kitty" in the results
-#     And I should not see "leo" in the results
+Scenario: List all suppliers named Evan
+    When I visit the "Home Page"
+    And I set the "Name" to "Evan"
+    And I press the "Search" button
+    Then I should see "Evan" in the results
 
 # Scenario: Update a Pet
 #     When I visit the "Home Page"
