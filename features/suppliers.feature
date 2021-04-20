@@ -5,12 +5,12 @@ Feature: The supplier service back-end
 
 Background:
     Given the following suppliers
-        | name       | email                   | address             | phone_number  | available |
-        | Catherine  | catherine@manatee.com   | 123 Baywatch Rd     | 9991235555    | True      |
-        | Evan       | evan@titans.com         | 14 Cashville Ln     | 9991235575    | False     |
-        | Bea        | bea@tapas.com           | 12 Spain Dr         | 9991235545    | True      |
-        | Sam        | sam@tb12.com            | 18 Foxboro Pl       | 9991235525    | True      |
-       
+        | name       | email                   | address              | phone_number  | available |
+        | Catherine  | catherine@manatee.com   | 123 Baywatch Rd      | 9991235555    | True      |
+        | Evan       | evan@titans.com         | 14 Cashville Ln      | 9991235575    | False     |
+        | Bea        | bea@tapas.com           | 12 Spain Dr          | 9991235545    | True      |
+        | Sam        | sam@tb12.com            | 18 Foxboro Pl        | 9991235525    | True      |
+
 Scenario: The server is running
     When I visit the "Home Page"
     Then I should see "Supplier Demo RESTful Service" in the title
@@ -74,3 +74,16 @@ Scenario: Search a Supplier
 #     And I press the "Search" button
 #     Then I should see "Boxer" in the results
 #     Then I should not see "fido" in the results
+
+Scenario: Delete a Supplier
+    When I visit the "Home Page"
+    And I set the "name" to "Catherine"
+    And I press the "search" button
+    Then I should see "Catherine" in the "name" field
+    When I copy the "Id" field
+    And I press the "clear" button
+    And I paste the "Id" field
+    And I press the "Delete" button
+    And I press the "clear" button
+    And I press the "search" button
+    Then I should not see "Catherine" in the results
