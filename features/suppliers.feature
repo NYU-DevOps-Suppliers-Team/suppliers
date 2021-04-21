@@ -38,20 +38,24 @@ Scenario: Create a Supplier
     Then I should see "123 Test Road" in the "Address" field
     Then I should see "8005551234" in the "phone_number" field
 
-# Scenario: List all pets
-#     When I visit the "Home Page"
-#     And I press the "Search" button
-#     Then I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should not see "leo" in the results
+Scenario: List all suppliers
+    When I visit the "Home Page"
+    And I press the "List" button
+    Then I should see "Catherine" in the results
+    And I should see "Evan" in the results
+    And I should see "Bea" in the results
+    And I should see "Sam" in the results
 
-# Scenario: List all dogs
-#     When I visit the "Home Page"
-#     And I set the "Category" to "dog"
-#     And I press the "Search" button
-#     Then I should see "fido" in the results
-#     And I should not see "kitty" in the results
-#     And I should not see "leo" in the results
+Scenario: Search a Supplier
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I set the "name" to "Evan"
+    And I press the "Search" button
+    Then I should see "Evan" in the results
+    And I should not see "Sophie" in the results
+    And I should not see "Catherine" in the results
+    And I should not see "Sam" in the results
+    And I should not see "Bea" in the results
 
 # Scenario: Update a Pet
 #     When I visit the "Home Page"
