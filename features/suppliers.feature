@@ -51,10 +51,11 @@ Scenario: Search a Supplier
     And I press the "Clear" button
     And I set the "name" to "Evan"
     And I press the "Search" button
-    Then I should see "Evan" in the "name" field
-    Then I should see "evan@titans.com" in the "email" field
-    Then I should see "14 Cashville Ln" in the "address" field
-    Then I should see "9991235575" in the "phone_number" field
+    Then I should see "Evan" in the results
+    And I should not see "Sophie" in the results
+    And I should not see "Catherine" in the results
+    And I should not see "Sam" in the results
+    And I should not see "Bea" in the results
 
 # Scenario: Update a Pet
 #     When I visit the "Home Page"
