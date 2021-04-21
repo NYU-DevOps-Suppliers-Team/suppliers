@@ -57,24 +57,27 @@ Scenario: Search a Supplier
     And I should not see "Sam" in the results
     And I should not see "Bea" in the results
 
-# Scenario: Update a Pet
-#     When I visit the "Home Page"
-#     And I set the "Name" to "fido"
-#     And I press the "Search" button
-#     Then I should see "fido" in the "Name" field
-#     And I should see "dog" in the "Category" field
-#     When I change "Name" to "Boxer"
-#     And I press the "Update" button
-#     Then I should see the message "Success"
-#     When I copy the "Id" field
-#     And I press the "Clear" button
-#     And I paste the "Id" field
-#     And I press the "Retrieve" button
-#     Then I should see "Boxer" in the "Name" field
-#     When I press the "Clear" button
-#     And I press the "Search" button
-#     Then I should see "Boxer" in the results
-#     Then I should not see "fido" in the results
+Scenario: Update a Supplier
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I set the "Name" to "Sam"
+    And I press the "Search" button
+    Then I should see "Sam" in the "Name" field
+    Then I should see "sam@tb12.com" in the "Email" field
+    Then I should see "18 Foxboro Pl" in the "Address" field
+    Then I should see "9991235525" in the "phone_number" field
+    When I change "Name" to "Tommy Jr"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see "Tommy Jr" in the "Name" field
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see "Tommy Jr" in the results
+    Then I should not see "Sam" in the results
 
 Scenario: Delete a Supplier
     When I visit the "Home Page"
