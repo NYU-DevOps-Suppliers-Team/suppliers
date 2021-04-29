@@ -11,7 +11,7 @@ services:
    - postgresql
 
 env:
-  - DATABASE_URI=postgres://postgres:@localhost:5432/testdb
+  - DATABASE_URI=postgres://postgres:@localhost:5984/testdb
 
 cache: pip
 
