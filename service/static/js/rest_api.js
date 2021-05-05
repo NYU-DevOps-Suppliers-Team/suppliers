@@ -170,6 +170,7 @@ $(function () {
     $("#clear-btn").click(function () {
         $("#supplier_id").val("");
         clear_form_data()
+        retrieveOrderedList()
     });
 
     // ****************************************

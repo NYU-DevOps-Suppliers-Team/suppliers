@@ -67,8 +67,5 @@ Scenario: Delete a Supplier
     And I set the "name" to "Catherine"
     And I press the "search" button
     Then I should see "Catherine" in the "name" field
-    When I copy the "Id" field
-    And I press the "clear" button
-    And I paste the "Id" field
-    And I press the "Delete" button
+    When I press the "Delete" button
     Then I should not see "Catherine" in the results
