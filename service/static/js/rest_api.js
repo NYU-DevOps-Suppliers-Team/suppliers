@@ -287,11 +287,6 @@ $(function () {
 
             $("#search_results").append('</table>');
 
-            // copy the first result to the form
-            if (firstSupplier != "") {
-                update_form_data(firstSupplier)
-            }
-
             flash_message("Success")
         });
 
