@@ -60,6 +60,7 @@ $(function () {
         ajax.done(function(res){
             update_form_data(res)
             flash_message("Success")
+            retrieveOrderedList()
         });
 
         ajax.fail(function(res){
@@ -153,6 +154,7 @@ $(function () {
         ajax.done(function(res){
             clear_form_data()
             flash_message("Supplier has been Deleted!")
+            retrieveOrderedList()
         });
 
         ajax.fail(function(res){
