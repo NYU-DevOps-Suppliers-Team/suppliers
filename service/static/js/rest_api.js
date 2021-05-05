@@ -101,6 +101,7 @@ $(function () {
         ajax.done(function(res){
             update_form_data(res)
             flash_message("Success")
+            retrieveOrderedList()
         });
 
         ajax.fail(function(res){
