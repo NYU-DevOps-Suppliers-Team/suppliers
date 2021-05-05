@@ -60,6 +60,7 @@ $(function () {
         ajax.done(function(res){
             update_form_data(res)
             flash_message("Success")
+            retrieveOrderedList()
         });
 
         ajax.fail(function(res){
@@ -100,6 +101,7 @@ $(function () {
         ajax.done(function(res){
             update_form_data(res)
             flash_message("Success")
+            retrieveOrderedList()
         });
 
         ajax.fail(function(res){
@@ -153,6 +155,7 @@ $(function () {
         ajax.done(function(res){
             clear_form_data()
             flash_message("Supplier has been Deleted!")
+            retrieveOrderedList()
         });
 
         ajax.fail(function(res){
@@ -167,6 +170,7 @@ $(function () {
     $("#clear-btn").click(function () {
         $("#supplier_id").val("");
         clear_form_data()
+        retrieveOrderedList()
     });
 
     // ****************************************
@@ -286,11 +290,6 @@ $(function () {
             }
 
             $("#search_results").append('</table>');
-
-            // copy the first result to the form
-            if (firstSupplier != "") {
-                update_form_data(firstSupplier)
-            }
 
             flash_message("Success")
         });

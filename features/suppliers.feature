@@ -23,20 +23,10 @@ Scenario: Create a Supplier
     And I set the "Address" to "123 Test Road"
     And I set the "phone_number" to "8005551234"
     And I press the "Create" button
-    Then I should see the message "Success"
-    When I copy the "Id" field
-    And I press the "Clear" button
-    Then the "Id" field should be empty
-    And the "Name" field should be empty
-    And the "Email" field should be empty
-    And the "Address" field should be empty
-    And the "phone_number" field should be empty
-    When I paste the "Id" field
-    And I press the "Retrieve" button
-    Then I should see "Sophie" in the "Name" field
-    Then I should see "sophie@test.com" in the "Email" field
-    Then I should see "123 Test Road" in the "Address" field
-    Then I should see "8005551234" in the "phone_number" field
+    Then I should see "Sophie" in the results
+    Then I should see "sophie@test.com" in the results
+    Then I should see "123 Test Road" in the results
+    Then I should see "8005551234" in the results
 
 Scenario: List all suppliers
     When I visit the "Home Page"
@@ -69,13 +59,6 @@ Scenario: Update a Supplier
     When I change "Name" to "Tommy Jr"
     And I press the "Update" button
     Then I should see the message "Success"
-    When I copy the "Id" field
-    And I press the "Clear" button
-    And I paste the "Id" field
-    And I press the "Retrieve" button
-    Then I should see "Tommy Jr" in the "Name" field
-    When I press the "Clear" button
-    And I press the "Search" button
     Then I should see "Tommy Jr" in the results
     Then I should not see "Sam" in the results
 
@@ -84,10 +67,6 @@ Scenario: Delete a Supplier
     And I set the "name" to "Catherine"
     And I press the "search" button
     Then I should see "Catherine" in the "name" field
-    When I copy the "Id" field
-    And I press the "clear" button
-    And I paste the "Id" field
-    And I press the "Delete" button
-    And I press the "clear" button
-    And I press the "search" button
+    When I press the "Delete" button
+    And I press the "List" button
     Then I should not see "Catherine" in the results
