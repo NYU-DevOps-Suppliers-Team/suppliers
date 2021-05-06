@@ -45,3 +45,13 @@ th {
     display: flex;
     align-items: center;
 }
+
+.disable {
+    margin-left: 12px;
+    padding: 4px;
+}
+
+.td-disable {
+    display: flex;
+    align-items: center;
+}

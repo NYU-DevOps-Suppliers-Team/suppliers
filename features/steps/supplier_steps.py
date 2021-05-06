@@ -110,6 +110,16 @@ def step_impl(context, element_name):
     element.clear()
     element.send_keys(context.clipboard)
 
+@when('I copy the "{element_name}" field and click disable')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX + element_name.lower()
+    element = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    value_id = element.get_attribute('value')
+    button_id = 'disable-'+value_id+'-btn'
+    context.driver.find_element_by_id(button_id).click()
+   
 ##################################################################
 # This code works because of the following naming convention:
 # The buttons have an id in the html hat is the button text

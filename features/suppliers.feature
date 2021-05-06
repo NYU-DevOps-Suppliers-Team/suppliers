@@ -71,3 +71,12 @@ Scenario: Delete a Supplier
     Then I should see the message "Supplier has been Deleted!"
     When I press the "List" button
     Then I should not see "Catherine" in the results
+
+Scenario: Disable a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Sam"
+    And I press the "Search" button
+    Then I should see "sam@tb12.com" in the "email" field
+    When I copy the "ID" field and click disable
+    Then I should see the message "Supplier unavailable!"
+    

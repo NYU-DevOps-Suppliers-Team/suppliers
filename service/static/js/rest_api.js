@@ -111,6 +111,29 @@ $(function () {
     });
 
     // ****************************************
+    // Make a supplier unavailable
+    // ****************************************
+
+     function disableSupplier(supplier_id) {
+
+        var ajax = $.ajax({
+            type: "PUT",
+            url: "/suppliers/" + supplier_id + "/unavailable",
+            contentType: "application/json"
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Supplier unavailable!")
+            retrieveOrderedList()
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    }
+
+    // ****************************************
     // Retrieve a SUPPLIER
     // ****************************************
 
@@ -218,13 +241,17 @@ $(function () {
             for(var i = 0; i < res.length; i++) {
                 var supplier = res[i];
                 var tr = '<tr>' ; 
+
+                function disableCurrentSupplier(supplierId) {
+                    disableSupplier(supplierId);
+                }
                // create a new Label Text
                    tr += '<td>' + supplier.id  + '</td>';
                    tr += '<td>' + supplier.name + '</td>';
                    tr += '<td>' + supplier.email + '</td>';  
                    tr += '<td>' + supplier.address + '</td>';  
                    tr += '<td>' + supplier.phone_number + '</td>';
-                   tr += supplier.available ? '<td>' + supplier.available + '</td>': '<td class="unavailable">' + supplier.available + '</td>';  
+                   tr += supplier.available ? '<td class="td-disable">' + supplier.available + '<button id="disable-'+supplier.id+'-btn" type="submit" class="btn btn-danger disable" id="disable-btn">Disable</button></td>': '<td class="unavailable">' + supplier.available + '</td>';  
                    tr +='</tr>';
                 
                 $("#table-content").append(tr);
@@ -238,6 +265,14 @@ $(function () {
             // copy the first result to the form
             if (firstSupplier != "") {
                 update_form_data(firstSupplier)
+            }
+
+            if (supplier.available) {
+                $("#disable-"+ supplier.id +"-btn").click(function(e) {
+                    var buttonID = e.target.id;
+                    var supplierID = buttonID.replace('disable-','').replace('-btn','');
+                    disableCurrentSupplier(supplierID);
+                 });
             }
 
             flash_message("Success")
@@ -274,19 +309,33 @@ $(function () {
             for(var i = 0; i < res.length; i++) {
                 var supplier = res[i];
                 var tr = '<tr>' ; 
+
+                function disableCurrentSupplier(supplierId) {
+                    disableSupplier(supplierId);
+                }
                // create a new Label Text
                    tr += '<td>' + supplier.id  + '</td>';
                    tr += '<td>' + supplier.name + '</td>';
                    tr += '<td>' + supplier.email + '</td>';  
                    tr += '<td>' + supplier.address + '</td>';  
                    tr += '<td>' + supplier.phone_number + '</td>';
-                   tr += supplier.available ? '<td>' + supplier.available + '</td>': '<td class="unavailable">' + supplier.available + '</td>';  
+                   tr += supplier.available ? '<td class="td-disable">' + supplier.available + '<button id="disable-'+supplier.id+'-btn" type="submit" class="btn btn-danger disable" id="disable-btn">Disable</button></td>': '<td class="unavailable">' + supplier.available + '</td>';  
                    tr +='</tr>';
+                   
                 
                 $("#table-content").append(tr);
                 if (i == 0) {
                     firstSupplier = supplier;
                 }
+
+                if (supplier.available) {
+                    $("#disable-"+ supplier.id +"-btn").click(function(e) {
+                        var buttonID = e.target.id;
+                        var supplierID = buttonID.replace('disable-','').replace('-btn','');
+                        disableCurrentSupplier(supplierID);
+                     });
+                }
+   
             }
 
             $("#search_results").append('</table>');
