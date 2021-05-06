@@ -66,7 +66,7 @@ Scenario: Delete a Supplier
     When I visit the "Home Page"
     And I set the "name" to "Catherine"
     And I press the "search" button
-    Then I should see "Catherine" in the "name" field
+    Then I should see "catherine@manatee.com" in the "email" field
     When I press the "Delete" button
     Then I should see the message "Supplier has been Deleted!"
     When I press the "List" button
